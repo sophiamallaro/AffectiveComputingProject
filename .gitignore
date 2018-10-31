@@ -1,0 +1,22 @@
+# DS_Store
+*.DS_Store*
+
+# deam
+data/deam/annotations
+data/deam/features
+data/deam/MEMD_audio
+data/deam/metadata
+data/deam/manual.pdf
+
+# lj40k
+data/lj40k/data/
+data/lj40k/demo/
+
+# vscode
+.vscode/
+
+# pyenv version
+.python-version
+
+# ipynb checkpoints
+.ipynb_checkpoints/
