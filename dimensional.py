@@ -31,7 +31,7 @@ def get_dimensional_emotion(mp3_file_paths, artists, titles):
         print("converted {} to {}".format(mp3_file_path, wav_file_path))
 
         feature_file_path = "temp/temp_features_{}.csv".format(song_id)
-        os.system("opensmile/inst/bin/SMILExtract -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
+        os.system("opensmile/inst/bin/SMILExtract -noconsoleoutput -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
         print("features created in {}".format(feature_file_path))
         print()
 
@@ -49,12 +49,12 @@ def get_dimensional_emotion(mp3_file_paths, artists, titles):
         print("done aggregating {}".format(feature_file_path))
     print("features created for demo songs\n")
 
-    print("removing temp files...", end = "")
-    for song_id in song_ids:
-        wav_file_path = "temp/temp_{}.wav".format(song_id)
-        feature_file_path = "temp/temp_features_{}.csv".format(song_id)
-        os.system("rm {} {}".format(wav_file_path, feature_file_path))
-    print("done")
+    # print("removing temp files...", end = "")
+    # for song_id in song_ids:
+    #     wav_file_path = "temp/temp_{}.wav".format(song_id)
+    #     feature_file_path = "temp/temp_features_{}.csv".format(song_id)
+    #     os.system("rm {} {}".format(wav_file_path, feature_file_path))
+    # print("done")
 
     text_emotion = get_text_dimensional_emotion(song_ids, list_lyrics)
     print("text emotion calculated")
@@ -88,3 +88,12 @@ def get_audio_dimensional_emotion(demo_df):
     audio_emotion["audio_arousal"] = arousal
     audio_emotion["audio_valence"] = valence
     return audio_emotion
+
+if __name__ == "__main__":
+    mp3_file_paths = ["data/2.mp3","data/3.mp3","data/4.mp3"]
+    artists = ["Pharrell Williams","Linkin Park","Taylor Swift"]
+    titles = ["Happy","In the End","Look What You Made Me Do"]
+
+    valence, arousal = get_dimensional_emotion(mp3_file_paths, artists, titles)
+    print(valence)
+    print(arousal)
