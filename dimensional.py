@@ -11,31 +11,41 @@ arousal_model = pickle.load(open("dimensional/arousal_model.pkl", "rb"))
 valence_model = pickle.load(open("dimensional/valence_model.pkl", "rb"))
 print("lexicon and models loaded for dimensional mer")
 
-def get_dimensional_emotion(mp3_file_paths, artists, titles):
+def get_dimensional_emotion(metadata):
+    assert len(metadata) > 0, "empty dictionary!"
+
     list_lyrics = []
     song_ids = []
-    for i, (mp3_file_path, artist, title) in enumerate(zip(mp3_file_paths, artists, titles)): 
-        song_id = i + 1
+    for song_id, (title, artist) in metadata.items(): 
+        found_features = False
+        mp3_file_path = "data/{}.mp3".format(song_id)
+
         try: 
             lyrics = PyLyrics.getLyrics(artist, title)
             print("lyrics extracted for song: {} by artist: {}".format(title, artist))
         except Exception as e:
             print("Error [ {} ] occured while trying to get lyrics for song: {} by artist: {}".format(e, title, artist))
             lyrics = ""
-        list_lyrics.append(lyrics)
-        song_ids.append(song_id)
 
-        mp3_file = AudioSegment.from_mp3(mp3_file_path)
-        wav_file_path = "temp/temp_{}.wav".format(song_id)
-        mp3_file.export(wav_file_path, format="wav")
-        print("converted {} to {}".format(mp3_file_path, wav_file_path))
+        if os.path.exists(mp3_file_path):
+            mp3_file = AudioSegment.from_mp3(mp3_file_path)
+            wav_file_path = "temp/temp_{}.wav".format(song_id)
+            mp3_file.export(wav_file_path, format="wav")
+            print("converted {} to {}".format(mp3_file_path, wav_file_path))
 
-        feature_file_path = "temp/temp_features_{}.csv".format(song_id)
-        os.system("opensmile/inst/bin/SMILExtract -noconsoleoutput -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
-        print("features created in {}".format(feature_file_path))
-        print()
+            feature_file_path = "temp/temp_features_{}.csv".format(song_id)
+            os.system("opensmile/inst/bin/SMILExtract -noconsoleoutput -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
+            print("features created in {}".format(feature_file_path))
+            print()
+            found_features = True
+        else:
+            print("{} not found...no audio features!".format(mp3_file_path))
 
-    columns = list(pd.read_csv("temp/temp_features_1.csv", delimiter = ";", index_col = 0, header = 0).columns)
+        if found_features:
+            song_ids.append(song_id)
+            list_lyrics.append(lyrics)
+
+    columns = list(pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0).columns)
     columns = [column for column in columns if column.endswith("_amean")]
     mean_columns = [column[:-6] + "_mean" for column in columns]
     std_columns = [column[:-6] + "_std" for column in columns]
@@ -49,12 +59,12 @@ def get_dimensional_emotion(mp3_file_paths, artists, titles):
         print("done aggregating {}".format(feature_file_path))
     print("features created for demo songs\n")
 
-    # print("removing temp files...", end = "")
-    # for song_id in song_ids:
-    #     wav_file_path = "temp/temp_{}.wav".format(song_id)
-    #     feature_file_path = "temp/temp_features_{}.csv".format(song_id)
-    #     os.system("rm {} {}".format(wav_file_path, feature_file_path))
-    # print("done")
+    print("removing temp files...", end = "")
+    for song_id in song_ids:
+        wav_file_path = "temp/temp_{}.wav".format(song_id)
+        feature_file_path = "temp/temp_features_{}.csv".format(song_id)
+        os.system("rm {} {}".format(wav_file_path, feature_file_path))
+    print("done")
 
     text_emotion = get_text_dimensional_emotion(song_ids, list_lyrics)
     print("text emotion calculated")
@@ -63,8 +73,12 @@ def get_dimensional_emotion(mp3_file_paths, artists, titles):
 
     valence = (text_emotion["text_valence"] + audio_emotion["audio_valence"])/2
     arousal = (text_emotion["text_arousal"] + audio_emotion["audio_arousal"])/2
+    emotion = pd.DataFrame(index = valence.index, columns = ["arousal","valence"])
+    emotion["arousal"] = arousal.copy()
+    emotion["valence"] = valence.copy()
+    emotion.to_csv("dimensional_emotion.csv")
 
-    return valence, arousal
+    return emotion
 
 def get_text_dimensional_emotion(song_ids, list_lyrics):
     text_emotion = pd.DataFrame(index = song_ids, columns = ["text_arousal","text_valence"])

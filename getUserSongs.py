@@ -62,13 +62,13 @@ def make_playlist(sp):
     return playlistID
 
 
-def main():
+def get_songs():
     sp = generate_token()
     get_user_tracks(sp)
     #print(user_tracks)
     id = make_playlist(sp)
     addTrackToPlaylist(sp, id)
+    return user_tracks
 
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    get_songs()
