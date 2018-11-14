@@ -71,10 +71,9 @@ def main():
     id = make_playlist(sp)
     addTrackToPlaylist(sp, id)
     print(len(user_tracks))
-    path, dirs, files = next(os.walk("/data"))
+    path, dirs, files = next(os.walk("data/"))
     file_count = len(files)
     print(file_count)
-
 
 
 if __name__ == '__main__':
