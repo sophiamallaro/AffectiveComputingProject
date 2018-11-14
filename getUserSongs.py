@@ -3,6 +3,7 @@ import sys
 import spotipy
 import spotipy.util as util
 import urllib.request
+import os
 
 
 CLIENT_ID = '0e7ea227ef7d407b8bf47a4c545adb3c'
@@ -28,11 +29,12 @@ def make_dictionary(tracks):
         user_tracks[track['id']] = (track['name'], track['artists'][0]['name']) # id = name, artist
         downloadMP3(track['preview_url'], track['id'])
 
-
 def downloadMP3(url, id):
     saveAs = "data/" + id + ".mp3"
     if url is not None:
         urllib.request.urlretrieve(url, saveAs)
+    else:
+        del user_tracks[id]
 
 
 def get_user_tracks(sp):
@@ -68,6 +70,11 @@ def main():
     #print(user_tracks)
     id = make_playlist(sp)
     addTrackToPlaylist(sp, id)
+    print(len(user_tracks))
+    path, dirs, files = next(os.walk("/data"))
+    file_count = len(files)
+    print(file_count)
+
 
 
 if __name__ == '__main__':
