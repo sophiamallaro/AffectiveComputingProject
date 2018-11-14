@@ -1,0 +1,21 @@
+[ 13.11.2018 - 13:57:41 ]
+    (MSG) [2] in SMILExtract : openSMILE starting!
+[ 13.11.2018 - 13:57:41 ]
+    (MSG) [2] in SMILExtract : config file is: IS13_ComParE_lld-func.conf
+[ 13.11.2018 - 13:57:41 ]
+    (MSG) [2] in cComponentManager : successfully registered 96 component types.
+[ 13.11.2018 - 13:57:41 ]
+    (WARN) [1] in instance 'functionalsA.reader' : Mismatch in input level buffer sizes (levelconf.nT). Level #1 has size 2 which is smaller than the max. input size of all input levels (100). This might cause the processing to hang unpredictably or cause incomplete processing.
+[ 13.11.2018 - 13:57:41 ]
+    (WARN) [1] in instance 'functionalsA.reader' : Mismatch in input level buffer sizes (levelconf.nT). Level #2 has size 2 which is smaller than the max. input size of all input levels (100). This might cause the processing to hang unpredictably or cause incomplete processing.
+[ 13.11.2018 - 13:57:41 ]
+    (WARN) [1] in instance 'functionalsA.reader' : Mismatch in input level buffer sizes (levelconf.nT). Level #4 has size 2 which is smaller than the max. input size of all input levels (100). This might cause the processing to hang unpredictably or cause incomplete processing.
+[ 13.11.2018 - 13:57:41 ]
+    (WARN) [1] in instance 'functionalsA.reader' : Mismatch in input level buffer sizes (levelconf.nT). Level #5 has size 2 which is smaller than the max. input size of all input levels (100). This might cause the processing to hang unpredictably or cause incomplete processing.
+[ 13.11.2018 - 13:57:41 ]
+    (MSG) [2] in cComponentManager : successfully finished createInstances
+                                 (36 component instances were finalised, 1 data memories were finalised)
+[ 13.11.2018 - 13:57:41 ]
+    (MSG) [2] in cComponentManager : starting single thread processing loop
+[ 13.11.2018 - 13:57:46 ]
+    (MSG) [2] in cComponentManager : Processing finished! System ran for 4527 ticks.
