@@ -11,11 +11,12 @@ arousal_model = pickle.load(open("dimensional/arousal_model.pkl", "rb"))
 valence_model = pickle.load(open("dimensional/valence_model.pkl", "rb"))
 print("lexicon and models loaded for dimensional mer")
 
-def get_dimensional_emotion(metadata):
+def get_dimensional_emotion(metadata, limit = 20):
     assert len(metadata) > 0, "empty dictionary!"
 
     list_lyrics = []
     song_ids = []
+    n = 0
     for song_id, (title, artist) in metadata.items(): 
         found_features = False
         mp3_file_path = "data/{}.mp3".format(song_id)
@@ -44,6 +45,10 @@ def get_dimensional_emotion(metadata):
         if found_features:
             song_ids.append(song_id)
             list_lyrics.append(lyrics)
+
+        n += 1
+        if n == limit:
+            break
 
     columns = list(pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0).columns)
     columns = [column for column in columns if column.endswith("_amean")]
@@ -107,7 +112,3 @@ if __name__ == "__main__":
     mp3_file_paths = ["data/2.mp3","data/3.mp3","data/4.mp3"]
     artists = ["Pharrell Williams","Linkin Park","Taylor Swift"]
     titles = ["Happy","In the End","Look What You Made Me Do"]
-
-    valence, arousal = get_dimensional_emotion(mp3_file_paths, artists, titles)
-    print(valence)
-    print(arousal)

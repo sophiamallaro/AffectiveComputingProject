@@ -22,3 +22,5 @@ data/lj40k/demo/
 .ipynb_checkpoints/
 
 dimensional/features
+data/
+.cache-*
