@@ -1,9 +1,6 @@
-import spotipy.oauth2 as oauth2
-import sys
 import spotipy
 import spotipy.util as util
 import urllib.request
-import os
 
 
 CLIENT_ID = '0e7ea227ef7d407b8bf47a4c545adb3c'
@@ -29,6 +26,7 @@ def make_dictionary(tracks):
         user_tracks[track['id']] = (track['name'], track['artists'][0]['name']) # id = name, artist
         downloadMP3(track['preview_url'], track['id'])
 
+
 def downloadMP3(url, id):
     saveAs = "data/" + id + ".mp3"
     if url is not None:
@@ -50,27 +48,37 @@ def get_user_tracks(sp):
             make_dictionary(tracks)
 
 
-def addTrackToPlaylist(sp, playlist_id):
+def addTrackToPlaylist(sp, playlist_id, songs):
     song_ids = []
-    for counter, key in enumerate(user_tracks):
+    for counter, key in enumerate(songs):
         if counter < 50:
             song_ids.append(key)
     sp.user_playlist_add_tracks('al321rltkr20p7oftb0i801lk', playlist_id, song_ids)
 
 
-def make_playlist(sp):
-    playlists = sp.user_playlist_create(USERNAME, 'TEST PLAYLIST3', public=False)
+def pickSongs(target, songs):
+    my_songs = list()
+    for key in songs:
+        if songs[key] == target:
+            my_songs.add(key)
+    return my_songs
+
+
+def make_playlist(sp, name, songs):
+    playlists = sp.user_playlist_create(USERNAME, name, public=False)
     playlistID = playlists['id']
+    addTrackToPlaylist(sp, playlistID, songs)
     return playlistID
 
 
-def get_songs():
+def main():
     sp = generate_token()
     get_user_tracks(sp)
     #print(user_tracks)
-    id = make_playlist(sp)
-    addTrackToPlaylist(sp, id)
+    #id = make_playlist(sp)
+    #addTrackToPlaylist(sp, id)
     return user_tracks
 
-if __name__ == "__main__":
-    get_songs()
+
+if __name__ == '__main__':
+    main()
