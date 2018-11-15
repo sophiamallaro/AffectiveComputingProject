@@ -21,6 +21,14 @@ data/lj40k/demo/
 # ipynb checkpoints
 .ipynb_checkpoints/
 
+# dimensional features
 dimensional/features
-data/
+
+# cache
 .cache-*
+
+# temp/
+temp/
+
+# opensmile log
+smile.log
