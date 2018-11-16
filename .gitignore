@@ -30,5 +30,5 @@ dimensional/features
 # temp/
 temp/
 
-# opensmile log
-smile.log
+# log
+*.log
