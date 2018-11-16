@@ -1,5 +1,6 @@
 import os
 import pickle
+import numpy as np
 import pandas as pd
 from pydub import AudioSegment
 from PyLyrics import PyLyrics
@@ -9,45 +10,55 @@ vad = "text/NRC-VAD-Lexicon.txt"
 vad_df = pd.read_csv(vad, delimiter = "\t", index_col = 0)
 arousal_model = pickle.load(open("dimensional/arousal_model.pkl", "rb"))
 valence_model = pickle.load(open("dimensional/valence_model.pkl", "rb"))
-print("lexicon and models loaded for dimensional mer")
+scaling = pd.read_csv("dimensional/scaling.csv", index_col=0, header=0)
+print("lexicon, models and scalings loaded for dimensional mer")
 
-def get_dimensional_emotion(metadata, limit = 20):
-    assert len(metadata) > 0, "empty dictionary!"
+def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "temp/", limit = -1, remove_temp = False):
+    assert len(tracks_dictionary) > 0, "empty dictionary!"
 
-    list_lyrics = []
     song_ids = []
-    n = 0
-    for song_id, (title, artist) in metadata.items(): 
+    titles = []
+    artists = []
+    song_ids_with_lyrics = []
+    
+    for i, (song_id, (title, artist)) in enumerate(tracks_dictionary.items()): 
         found_features = False
-        mp3_file_path = "data/{}.mp3".format(song_id)
+        found_lyrics = False
+        mp3_file_path = songs_folder + "{}.mp3".format(song_id)
+        print("Song: {}, Artist: {}, id: {}".format(title, artist, song_id))
 
         try: 
             lyrics = PyLyrics.getLyrics(artist, title)
-            print("lyrics extracted for song: {} by artist: {}".format(title, artist))
-        except Exception as e:
-            print("Error [ {} ] occured while trying to get lyrics for song: {} by artist: {}".format(e, title, artist))
-            lyrics = ""
+            print("lyrics extracted")
+            with open(temp_folder + "temp_{}.txt".format(song_id), "w") as fout:
+                fout.write(lyrics)
+            found_lyrics = True
+        except Exception:
+            print("lyrics not found")
 
         if os.path.exists(mp3_file_path):
             mp3_file = AudioSegment.from_mp3(mp3_file_path)
-            wav_file_path = "temp/temp_{}.wav".format(song_id)
+            wav_file_path = temp_folder + "temp_{}.wav".format(song_id)
             mp3_file.export(wav_file_path, format="wav")
-            print("converted {} to {}".format(mp3_file_path, wav_file_path))
+            print("converted mp3 to wav")
 
-            feature_file_path = "temp/temp_features_{}.csv".format(song_id)
+            feature_file_path = temp_folder + "temp_features_{}.csv".format(song_id)
             os.system("opensmile/inst/bin/SMILExtract -noconsoleoutput -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
-            print("features created in {}".format(feature_file_path))
+            print("features created")
             print()
             found_features = True
         else:
-            print("{} not found...no audio features!".format(mp3_file_path))
+            print("mp3 not found")
+        print()
 
         if found_features:
             song_ids.append(song_id)
-            list_lyrics.append(lyrics)
+            if found_lyrics:
+               song_ids_with_lyrics.append(song_id)
+            titles.append(title)
+            artists.append(artist)
 
-        n += 1
-        if n == limit:
+        if i == limit - 1:
             break
 
     columns = list(pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0).columns)
@@ -57,58 +68,68 @@ def get_dimensional_emotion(metadata, limit = 20):
     demo_df = pd.DataFrame(index = song_ids, columns = mean_columns + std_columns)
 
     for song_id in song_ids:
-        feature_file_path = "temp/temp_features_{}.csv".format(song_id)
+        feature_file_path = temp_folder + "temp_features_{}.csv".format(song_id)
         song_df = pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0)
-        demo_df.loc[song_id, mean_columns] = song_df[columns].mean().values
-        demo_df.loc[song_id, std_columns] = song_df[columns].std().values
-        print("done aggregating {}".format(feature_file_path))
+        demo_df.loc[song_id, mean_columns] = song_df[columns].mean().values.copy()
+        demo_df.loc[song_id, std_columns] = song_df[columns].std().values.copy()
+        print("done aggregating {}".format(song_id))
     print("features created for demo songs\n")
+    demo_df.to_csv(temp_folder + "aggregate.csv")
+    print()
 
-    print("removing temp files...", end = "")
-    for song_id in song_ids:
-        wav_file_path = "temp/temp_{}.wav".format(song_id)
-        feature_file_path = "temp/temp_features_{}.csv".format(song_id)
-        os.system("rm {} {}".format(wav_file_path, feature_file_path))
-    print("done")
+    if remove_temp:
+        print("removing temp files...", end = "")
+        for song_id in song_ids:
+            lyrics_file_path = temp_folder + "temp_{}.txt".format(song_id)
+            wav_file_path = temp_folder + "temp_{}.wav".format(song_id)
+            feature_file_path = temp_folder + "temp_features_{}.csv".format(song_id)
+            os.system("rm {} {} {}".format(lyrics_file_path, wav_file_path, feature_file_path))
+        print("done\n")
 
-    text_emotion = get_text_dimensional_emotion(song_ids, list_lyrics)
-    print("text emotion calculated")
-    audio_emotion = get_audio_dimensional_emotion(demo_df)
-    print("audio emotion calculated")
-
-    valence = (text_emotion["text_valence"] + audio_emotion["audio_valence"])/2
-    arousal = (text_emotion["text_arousal"] + audio_emotion["audio_arousal"])/2
-    emotion = pd.DataFrame(index = valence.index, columns = ["arousal","valence"])
-    emotion["arousal"] = arousal.copy()
-    emotion["valence"] = valence.copy()
-    emotion.to_csv("dimensional_emotion.csv")
+    emotion = pd.DataFrame(index = song_ids, columns = ["title","artist","lyrics","audio","text_arousal","text_valence","audio_arousal","audio_valence","arousal","valence"])
+    emotion["title"] = titles
+    emotion["artist"] = artists
+    emotion.loc["lyrics"] = emotion.index.map(lambda song_id: temp_folder + "temp_{}.txt".format(song_id) if song_id in song_ids_with_lyrics else np.nan)
+    emotion.loc["audio"] = emotion.index.map(lambda song_id: temp_folder + "temp_features_{}.csv".format(song_id))
+    emotion.to_csv("emotion.csv")
 
     return emotion
 
-def get_text_dimensional_emotion(song_ids, list_lyrics):
-    text_emotion = pd.DataFrame(index = song_ids, columns = ["text_arousal","text_valence"])
-    for song_id, lyrics in zip(song_ids, list_lyrics):
+def get_dimensional_emotion(emotion_df):
+    get_text_dimensional_emotion(emotion_df)
+    get_audio_dimensional_emotion(emotion_df)
+    emotion_df.to_csv("emotion.csv")
+
+def get_text_dimensional_emotion(emotion_df):
+    for song_id in emotion_df.index[emotion_df.lyrics.isna() == False]:
+        file_path = emotion_df.lyrics[song_id]
+        
+        with open(file_path) as fin:
+            lyrics = fin.read().strip()
         words = lyrics.split()
+        
         n = len(words)
         freq_dist = Counter(words)
         prob = pd.Series(index = vad_df.index, data = 0)
         for word, freq in freq_dist.items():
             prob[prob.index == word] = freq/n
+    
         valence = (vad_df.Valence * prob).sum()
         arousal = (vad_df.Arousal * prob).sum()
-        text_emotion.loc[song_id, "text_arousal"] = arousal
-        text_emotion.loc[song_id, "text_valence"] = valence
-    return text_emotion
     
-def get_audio_dimensional_emotion(demo_df):
-    arousal = arousal_model.predict(demo_df)
-    valence = valence_model.predict(demo_df)
-    audio_emotion = pd.DataFrame(columns = ["audio_arousal", "audio_valence"], index = demo_df.index)
-    audio_emotion["audio_arousal"] = arousal
-    audio_emotion["audio_valence"] = valence
-    return audio_emotion
+        emotion_df.loc[song_id, "text_arousal"] = arousal
+        emotion_df.loc[song_id, "text_valence"] = valence
+    print("text emotion calculated")
+    
+def get_audio_dimensional_emotion(emotion_df, temp_folder = "temp/"):
+    aggregate_df = pd.read_csv(temp_folder + "aggregate.csv", index_col=0, header=0)
+    aggregate_df_scaled = (aggregate_df - scaling["mean"])/scaling["std"]
+
+    emotion_df["audio_arousal"] = (arousal_model.predict(aggregate_df_scaled) - 1)/8
+    emotion_df["audio_valence"] = (valence_model.predict(aggregate_df_scaled) - 1)/8
+    
+    print("audio emotion calculated")
 
 if __name__ == "__main__":
-    mp3_file_paths = ["data/2.mp3","data/3.mp3","data/4.mp3"]
-    artists = ["Pharrell Williams","Linkin Park","Taylor Swift"]
-    titles = ["Happy","In the End","Look What You Made Me Do"]
+    emotion_df = pd.read_csv("emotion.csv", index_col=0)
+    get_dimensional_emotion(emotion_df)
