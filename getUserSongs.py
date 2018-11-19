@@ -23,7 +23,7 @@ def generate_token(): # generate api token
 def make_dictionary(tracks):
     for item in tracks['items']:
         track = item['track']
-        user_tracks[track['id']] = (track['name'], track['artists'][0]['name']) # id = name, artist
+        user_tracks[track['id']] = (track['name'], track['artists']) # id = name, artist
         downloadMP3(track['preview_url'], track['id'])
 
 
