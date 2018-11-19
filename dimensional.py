@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from pydub import AudioSegment
 from PyLyrics import PyLyrics
+import lyricsgenius as genius
 from collections import Counter
 
 vad = "text/NRC-VAD-Lexicon.txt"
@@ -12,6 +13,9 @@ arousal_model = pickle.load(open("dimensional/arousal_model.pkl", "rb"))
 valence_model = pickle.load(open("dimensional/valence_model.pkl", "rb"))
 scaling = pd.read_csv("dimensional/scaling.csv", index_col=0, header=0)
 print("lexicon, models and scalings loaded for dimensional mer")
+
+api = genius.Genius('9mXsJ6OfC-KdM2QF1xl_0hRVZ7KiqrQYtUwobdB4kcpVsClOHUGf_d1a8qQjfIoa')
+
 
 def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "temp/", limit = -1, remove_temp = False):
     assert len(tracks_dictionary) > 0, "empty dictionary!"
@@ -29,12 +33,21 @@ def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "te
 
         try: 
             lyrics = PyLyrics.getLyrics(artist, title)
-            print("lyrics extracted")
+            print("lyrics extracted using pylyrics")
             with open(temp_folder + "temp_{}.txt".format(song_id), "w") as fout:
                 fout.write(lyrics)
             found_lyrics = True
         except Exception:
             print("lyrics not found")
+
+        if not found_lyrics:
+            song = api.search_song(title, artist)
+            if song is not None:
+                print("lyrics extracted using lyricsgenius")
+                lyrics = song.lyrics
+                with open(temp_folder + "temp_{}.txt".format(song_id), "w") as fout:
+                    fout.write(lyrics)
+                found_lyrics = True
 
         if os.path.exists(mp3_file_path):
             mp3_file = AudioSegment.from_mp3(mp3_file_path)
@@ -95,10 +108,21 @@ def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "te
 
     return emotion
 
-def get_dimensional_emotion(emotion_df):
+def get_dimensional_emotion(emotion_df, alpha_arousal, alpha_valence):
     get_text_dimensional_emotion(emotion_df)
     get_audio_dimensional_emotion(emotion_df)
+
+    no_lyrics_index = emotion_df["lyrics"].isna()
+    lyrics_index = ~no_lyrics_index
+
+    emotion_df.loc[lyrics_index, "arousal"] = alpha_arousal * emotion_df.loc[lyrics_index, "audio_arousal"] + (1 - alpha_arousal) * emotion_df.loc[lyrics_index, "text_arousal"]
+    emotion_df.loc[lyrics_index, "valence"] = alpha_valence * emotion_df.loc[lyrics_index, "audio_valence"] + (1 - alpha_valence) * emotion_df.loc[lyrics_index, "text_valence"]
+    
+    emotion_df.loc[no_lyrics_index, "arousal"] = emotion_df.loc[no_lyrics_index, "audio_arousal"]
+    emotion_df.loc[no_lyrics_index, "valence"] = emotion_df.loc[no_lyrics_index, "audio_valence"]
+    
     emotion_df.to_csv("emotion.csv")
+    return emotion_df
 
 def get_text_dimensional_emotion(emotion_df):
     for song_id in emotion_df.index[emotion_df.lyrics.isna() == False]:
@@ -130,6 +154,11 @@ def get_audio_dimensional_emotion(emotion_df, temp_folder = "temp/"):
     
     print("audio emotion calculated")
 
+def get_emotion(tracks_dictionary, alpha_arousal = 0.5, alpha_valence = 0.5, songs_folder = "data/", temp_folder = "temp/", limit = -1, remove_temp = False):
+    emotion = create_features(tracks_dictionary, songs_folder, temp_folder, limit, remove_temp)
+    emotion = get_dimensional_emotion(emotion, alpha_arousal, alpha_valence)
+    return emotion.transpose().to_dict()
+
 if __name__ == "__main__":
     emotion_df = pd.read_csv("emotion.csv", index_col=0)
-    get_dimensional_emotion(emotion_df)
+    get_dimensional_emotion(emotion_df, alpha_arousal = 0.5, alpha_valence = 0.5)
