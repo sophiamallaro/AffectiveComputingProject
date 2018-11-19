@@ -2,7 +2,7 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-from pydub import AudioSegment
+import librosa as lr
 from PyLyrics import PyLyrics
 import lyricsgenius as genius
 from collections import Counter
@@ -16,6 +16,8 @@ print("lexicon, models and scalings loaded for dimensional mer")
 
 api = genius.Genius('9mXsJ6OfC-KdM2QF1xl_0hRVZ7KiqrQYtUwobdB4kcpVsClOHUGf_d1a8qQjfIoa')
 
+if not os.path.exists("temp/"):
+    os.makedirs("temp/")
 
 def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "temp/", limit = -1, remove_temp = False):
     assert len(tracks_dictionary) > 0, "empty dictionary!"
@@ -50,9 +52,9 @@ def create_features(tracks_dictionary, songs_folder = "data/", temp_folder = "te
                 found_lyrics = True
 
         if os.path.exists(mp3_file_path):
-            mp3_file = AudioSegment.from_mp3(mp3_file_path)
+            y, sr = lr.core.load(mp3_file_path, sr = None)
             wav_file_path = temp_folder + "temp_{}.wav".format(song_id)
-            mp3_file.export(wav_file_path, format="wav")
+            lr.output.write_wav(wav_file_path, y, sr)
             print("converted mp3 to wav")
 
             feature_file_path = temp_folder + "temp_features_{}.csv".format(song_id)
@@ -158,7 +160,3 @@ def get_emotion(tracks_dictionary, alpha_arousal = 0.5, alpha_valence = 0.5, son
     emotion = create_features(tracks_dictionary, songs_folder, temp_folder, limit, remove_temp)
     emotion = get_dimensional_emotion(emotion, alpha_arousal, alpha_valence)
     return emotion.transpose().to_dict()
-
-if __name__ == "__main__":
-    emotion_df = pd.read_csv("emotion.csv", index_col=0)
-    get_dimensional_emotion(emotion_df, alpha_arousal = 0.5, alpha_valence = 0.5)
