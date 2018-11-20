@@ -1,8 +1,3 @@
-
-# coding: utf-8
-
-# In[1]:
-
 import lyricsgenius as genius
 from PyLyrics import *
 import nltk
@@ -10,131 +5,186 @@ import indicoio
 import pandas as pd
 import spotipy
 import urllib
+import getUserSongs
 from spotipy.oauth2 import SpotifyClientCredentials
 
+def get_text_scores(dictionary):
+    api = genius.Genius('9mXsJ6OfC-KdM2QF1xl_0hRVZ7KiqrQYtUwobdB4kcpVsClOHUGf_d1a8qQjfIoa')
+    nrc = "text/NRC-emotion-lexicon-wordlevel-alphabetized-v0.92.txt"
+    count=0
+    emotion_dict=dict()
+    with open(nrc,'r') as f:
+        all_lines = list()
+        for line in f:
+            if count < 46:
+                count+=1
+                continue
+            line = line.strip().split('\t')
+            if int(line[2]) == 1:
+                if emotion_dict.get(line[0]):
+                    emotion_dict[line[0]].append(line[1])
+                else:
+                    emotion_dict[line[0]] = [line[1]]
 
-# In[2]:
 
-dictionary= {'2rPE9A1vEgShuZxxzR2tZH': ('thank u, next', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/66CXWjxzNUsdJxJ2JdwvnR'}, 'href': 'https://api.spotify.com/v1/artists/66CXWjxzNUsdJxJ2JdwvnR', 'id': '66CXWjxzNUsdJxJ2JdwvnR', 'name': 'Ariana Grande', 'type': 'artist', 'uri': 'spotify:artist:66CXWjxzNUsdJxJ2JdwvnR'}]), '5p7ujcrUXASCNwRaWNHR1C': ('Without Me', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/26VFTg2z8YR0cCuwLzESi2'}, 'href': 'https://api.spotify.com/v1/artists/26VFTg2z8YR0cCuwLzESi2', 'id': '26VFTg2z8YR0cCuwLzESi2', 'name': 'Halsey', 'type': 'artist', 'uri': 'spotify:artist:26VFTg2z8YR0cCuwLzESi2'}]), '1A6OTy97kk0mMdm78rHsm8': ('Sunflower - Spider-Man: Into the Spider-Verse', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/246dkjvS1zLTtiykXe5h60'}, 'href': 'https://api.spotify.com/v1/artists/246dkjvS1zLTtiykXe5h60', 'id': '246dkjvS1zLTtiykXe5h60', 'name': 'Post Malone', 'type': 'artist', 'uri': 'spotify:artist:246dkjvS1zLTtiykXe5h60'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1zNqQNIdeOUZHb8zbZRFMX'}, 'href': 'https://api.spotify.com/v1/artists/1zNqQNIdeOUZHb8zbZRFMX', 'id': '1zNqQNIdeOUZHb8zbZRFMX', 'name': 'Swae Lee', 'type': 'artist', 'uri': 'spotify:artist:1zNqQNIdeOUZHb8zbZRFMX'}]), '5tAa8Uaqr4VvA3693mbIhU': ('Ruin My Life', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1Xylc3o4UrD53lo9CvFvVg'}, 'href': 'https://api.spotify.com/v1/artists/1Xylc3o4UrD53lo9CvFvVg', 'id': '1Xylc3o4UrD53lo9CvFvVg', 'name': 'Zara Larsson', 'type': 'artist', 'uri': 'spotify:artist:1Xylc3o4UrD53lo9CvFvVg'}]), '2LskIZrCeLxRvCiGP8gxlh': ('Arms Around You (feat. Maluma & Swae Lee)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/15UsOTVnJzReFVN1VCnxy4'}, 'href': 'https://api.spotify.com/v1/artists/15UsOTVnJzReFVN1VCnxy4', 'id': '15UsOTVnJzReFVN1VCnxy4', 'name': 'XXXTENTACION', 'type': 'artist', 'uri': 'spotify:artist:15UsOTVnJzReFVN1VCnxy4'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3wyVrVrFCkukjdVIdirGVY'}, 'href': 'https://api.spotify.com/v1/artists/3wyVrVrFCkukjdVIdirGVY', 'id': '3wyVrVrFCkukjdVIdirGVY', 'name': 'Lil Pump', 'type': 'artist', 'uri': 'spotify:artist:3wyVrVrFCkukjdVIdirGVY'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1zNqQNIdeOUZHb8zbZRFMX'}, 'href': 'https://api.spotify.com/v1/artists/1zNqQNIdeOUZHb8zbZRFMX', 'id': '1zNqQNIdeOUZHb8zbZRFMX', 'name': 'Swae Lee', 'type': 'artist', 'uri': 'spotify:artist:1zNqQNIdeOUZHb8zbZRFMX'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1r4hJ1h58CWwUQe3MxPuau'}, 'href': 'https://api.spotify.com/v1/artists/1r4hJ1h58CWwUQe3MxPuau', 'id': '1r4hJ1h58CWwUQe3MxPuau', 'name': 'Maluma', 'type': 'artist', 'uri': 'spotify:artist:1r4hJ1h58CWwUQe3MxPuau'}]), '6rrTr2HEAzlpC4KWZxF3S1': ('Woman Like Me (feat. Nicki Minaj)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3e7awlrlDSwF3iM0WBjGMp'}, 'href': 'https://api.spotify.com/v1/artists/3e7awlrlDSwF3iM0WBjGMp', 'id': '3e7awlrlDSwF3iM0WBjGMp', 'name': 'Little Mix', 'type': 'artist', 'uri': 'spotify:artist:3e7awlrlDSwF3iM0WBjGMp'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/0hCNtLu0JehylgoiP8L4Gh'}, 'href': 'https://api.spotify.com/v1/artists/0hCNtLu0JehylgoiP8L4Gh', 'id': '0hCNtLu0JehylgoiP8L4Gh', 'name': 'Nicki Minaj', 'type': 'artist', 'uri': 'spotify:artist:0hCNtLu0JehylgoiP8L4Gh'}]), '2RSHsoi04658QL5xgQVov3': ('Bad Liar', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/53XhwfbYqKCa1cC15pYq2q'}, 'href': 'https://api.spotify.com/v1/artists/53XhwfbYqKCa1cC15pYq2q', 'id': '53XhwfbYqKCa1cC15pYq2q', 'name': 'Imagine Dragons', 'type': 'artist', 'uri': 'spotify:artist:53XhwfbYqKCa1cC15pYq2q'}]), '14sOS5L36385FJ3OL8hew4': ('Happy Now (feat. Sandro Cavazza)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/23fqKkggKUBHNkbKtXEls4'}, 'href': 'https://api.spotify.com/v1/artists/23fqKkggKUBHNkbKtXEls4', 'id': '23fqKkggKUBHNkbKtXEls4', 'name': 'Kygo', 'type': 'artist', 'uri': 'spotify:artist:23fqKkggKUBHNkbKtXEls4'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/5JYo7gm2dkyLLlWHjxS7Dy'}, 'href': 'https://api.spotify.com/v1/artists/5JYo7gm2dkyLLlWHjxS7Dy', 'id': '5JYo7gm2dkyLLlWHjxS7Dy', 'name': 'Sandro Cavazza', 'type': 'artist', 'uri': 'spotify:artist:5JYo7gm2dkyLLlWHjxS7Dy'}]), '5JEx7HbmvHQQswJCsoo9rA': ('Close To Me (with Diplo) (feat. Swae Lee)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/0X2BH1fck6amBIoJhDVmmJ'}, 'href': 'https://api.spotify.com/v1/artists/0X2BH1fck6amBIoJhDVmmJ', 'id': '0X2BH1fck6amBIoJhDVmmJ', 'name': 'Ellie Goulding', 'type': 'artist', 'uri': 'spotify:artist:0X2BH1fck6amBIoJhDVmmJ'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/5fMUXHkw8R8eOP2RNVYEZX'}, 'href': 'https://api.spotify.com/v1/artists/5fMUXHkw8R8eOP2RNVYEZX', 'id': '5fMUXHkw8R8eOP2RNVYEZX', 'name': 'Diplo', 'type': 'artist', 'uri': 'spotify:artist:5fMUXHkw8R8eOP2RNVYEZX'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1zNqQNIdeOUZHb8zbZRFMX'}, 'href': 'https://api.spotify.com/v1/artists/1zNqQNIdeOUZHb8zbZRFMX', 'id': '1zNqQNIdeOUZHb8zbZRFMX', 'name': 'Swae Lee', 'type': 'artist', 'uri': 'spotify:artist:1zNqQNIdeOUZHb8zbZRFMX'}]), '14JzyD6FlBD5z0wV5P07YI': ("when the party's over", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6qqNVTkY8uBg9cP3Jd7DAH'}, 'href': 'https://api.spotify.com/v1/artists/6qqNVTkY8uBg9cP3Jd7DAH', 'id': '6qqNVTkY8uBg9cP3Jd7DAH', 'name': 'Billie Eilish', 'type': 'artist', 'uri': 'spotify:artist:6qqNVTkY8uBg9cP3Jd7DAH'}]), '25sgk305KZfyuqVBQIahim': ('Sweet but Psycho', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4npEfmQ6YuiwW1GpUmaq3F'}, 'href': 'https://api.spotify.com/v1/artists/4npEfmQ6YuiwW1GpUmaq3F', 'id': '4npEfmQ6YuiwW1GpUmaq3F', 'name': 'Ava Max', 'type': 'artist', 'uri': 'spotify:artist:4npEfmQ6YuiwW1GpUmaq3F'}]), '5sdb5pMhcK44SSLsj1moUh': ('I Found You (with Calvin Harris)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5CiGnKThu5ctn9pBxv7DGa'}, 'href': 'https://api.spotify.com/v1/artists/5CiGnKThu5ctn9pBxv7DGa', 'id': '5CiGnKThu5ctn9pBxv7DGa', 'name': 'benny blanco', 'type': 'artist', 'uri': 'spotify:artist:5CiGnKThu5ctn9pBxv7DGa'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/7CajNmpbOovFoOoasH2HaY'}, 'href': 'https://api.spotify.com/v1/artists/7CajNmpbOovFoOoasH2HaY', 'id': '7CajNmpbOovFoOoasH2HaY', 'name': 'Calvin Harris', 'type': 'artist', 'uri': 'spotify:artist:7CajNmpbOovFoOoasH2HaY'}]), '7jr3iPu4O4bTCVwLMbdU2i': ('Kiss and Make Up', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6M2wZ9GZgrQXHCFfjv46we'}, 'href': 'https://api.spotify.com/v1/artists/6M2wZ9GZgrQXHCFfjv46we', 'id': '6M2wZ9GZgrQXHCFfjv46we', 'name': 'Dua Lipa', 'type': 'artist', 'uri': 'spotify:artist:6M2wZ9GZgrQXHCFfjv46we'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/41MozSoPIsD1dJM0CLPjZF'}, 'href': 'https://api.spotify.com/v1/artists/41MozSoPIsD1dJM0CLPjZF', 'id': '41MozSoPIsD1dJM0CLPjZF', 'name': 'BLACKPINK', 'type': 'artist', 'uri': 'spotify:artist:41MozSoPIsD1dJM0CLPjZF'}]), '4CH66Rxcjcj3VBHwmIBj4T': ('BAD!', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/15UsOTVnJzReFVN1VCnxy4'}, 'href': 'https://api.spotify.com/v1/artists/15UsOTVnJzReFVN1VCnxy4', 'id': '15UsOTVnJzReFVN1VCnxy4', 'name': 'XXXTENTACION', 'type': 'artist', 'uri': 'spotify:artist:15UsOTVnJzReFVN1VCnxy4'}]), '4w8niZpiMy6qz1mntFA5uM': ('Taki Taki (with Selena Gomez, Ozuna & Cardi B)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/540vIaP2JwjQb9dm3aArA4'}, 'href': 'https://api.spotify.com/v1/artists/540vIaP2JwjQb9dm3aArA4', 'id': '540vIaP2JwjQb9dm3aArA4', 'name': 'DJ Snake', 'type': 'artist', 'uri': 'spotify:artist:540vIaP2JwjQb9dm3aArA4'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/0C8ZW7ezQVs4URX5aX7Kqx'}, 'href': 'https://api.spotify.com/v1/artists/0C8ZW7ezQVs4URX5aX7Kqx', 'id': '0C8ZW7ezQVs4URX5aX7Kqx', 'name': 'Selena Gomez', 'type': 'artist', 'uri': 'spotify:artist:0C8ZW7ezQVs4URX5aX7Kqx'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1i8SpTcr7yvPOmcqrbnVXY'}, 'href': 'https://api.spotify.com/v1/artists/1i8SpTcr7yvPOmcqrbnVXY', 'id': '1i8SpTcr7yvPOmcqrbnVXY', 'name': 'Ozuna', 'type': 'artist', 'uri': 'spotify:artist:1i8SpTcr7yvPOmcqrbnVXY'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/4kYSro6naA4h99UJvo89HB'}, 'href': 'https://api.spotify.com/v1/artists/4kYSro6naA4h99UJvo89HB', 'id': '4kYSro6naA4h99UJvo89HB', 'name': 'Cardi B', 'type': 'artist', 'uri': 'spotify:artist:4kYSro6naA4h99UJvo89HB'}]), '1uru26I2JKd2mQZt0MDCUe': ('Empty Space', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4IWBUUAFIplrNtaOHcJPRM'}, 'href': 'https://api.spotify.com/v1/artists/4IWBUUAFIplrNtaOHcJPRM', 'id': '4IWBUUAFIplrNtaOHcJPRM', 'name': 'James Arthur', 'type': 'artist', 'uri': 'spotify:artist:4IWBUUAFIplrNtaOHcJPRM'}]), '116H0KvKr2Zl4RPuVBruDO': ('MIA (feat. Drake)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4q3ewBCX7sLwd24euuV69X'}, 'href': 'https://api.spotify.com/v1/artists/4q3ewBCX7sLwd24euuV69X', 'id': '4q3ewBCX7sLwd24euuV69X', 'name': 'Bad Bunny', 'type': 'artist', 'uri': 'spotify:artist:4q3ewBCX7sLwd24euuV69X'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4'}, 'href': 'https://api.spotify.com/v1/artists/3TVXtAsR1Inumwj472S9r4', 'id': '3TVXtAsR1Inumwj472S9r4', 'name': 'Drake', 'type': 'artist', 'uri': 'spotify:artist:3TVXtAsR1Inumwj472S9r4'}]), '3WefHNGtjexZvi66ZEx9u4': ('Hurts Like Hell (feat. Offset)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2kRfqPViCqYdSGhYSM9R0Q'}, 'href': 'https://api.spotify.com/v1/artists/2kRfqPViCqYdSGhYSM9R0Q', 'id': '2kRfqPViCqYdSGhYSM9R0Q', 'name': 'Madison Beer', 'type': 'artist', 'uri': 'spotify:artist:2kRfqPViCqYdSGhYSM9R0Q'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/4DdkRBBYG6Yk9Ka8tdJ9BW'}, 'href': 'https://api.spotify.com/v1/artists/4DdkRBBYG6Yk9Ka8tdJ9BW', 'id': '4DdkRBBYG6Yk9Ka8tdJ9BW', 'name': 'Offset', 'type': 'artist', 'uri': 'spotify:artist:4DdkRBBYG6Yk9Ka8tdJ9BW'}]), '6xtcFXSo8H9BZN637BMVKS': ('Let You Love Me', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5CCwRZC6euC8Odo6y9X8jr'}, 'href': 'https://api.spotify.com/v1/artists/5CCwRZC6euC8Odo6y9X8jr', 'id': '5CCwRZC6euC8Odo6y9X8jr', 'name': 'Rita Ora', 'type': 'artist', 'uri': 'spotify:artist:5CCwRZC6euC8Odo6y9X8jr'}]), '6SkHm6poyKfzV6kc9any8k': ('Suncity (feat. Empress Of)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6LuN9FCkKOj5PcnpouEgny'}, 'href': 'https://api.spotify.com/v1/artists/6LuN9FCkKOj5PcnpouEgny', 'id': '6LuN9FCkKOj5PcnpouEgny', 'name': 'Khalid', 'type': 'artist', 'uri': 'spotify:artist:6LuN9FCkKOj5PcnpouEgny'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/5QuBVnBPEzwYvFrgBbwpmU'}, 'href': 'https://api.spotify.com/v1/artists/5QuBVnBPEzwYvFrgBbwpmU', 'id': '5QuBVnBPEzwYvFrgBbwpmU', 'name': 'Empress Of', 'type': 'artist', 'uri': 'spotify:artist:5QuBVnBPEzwYvFrgBbwpmU'}]), '6QfS2wq5sSC1xAJCQsTSlj': ('Shallow - Radio Edit', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms'}, 'href': 'https://api.spotify.com/v1/artists/1HY2Jd0NmPuamShAr6KMms', 'id': '1HY2Jd0NmPuamShAr6KMms', 'name': 'Lady Gaga', 'type': 'artist', 'uri': 'spotify:artist:1HY2Jd0NmPuamShAr6KMms'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/4VIvfOurcf0vuLRxLkGnIG'}, 'href': 'https://api.spotify.com/v1/artists/4VIvfOurcf0vuLRxLkGnIG', 'id': '4VIvfOurcf0vuLRxLkGnIG', 'name': 'Bradley Cooper', 'type': 'artist', 'uri': 'spotify:artist:4VIvfOurcf0vuLRxLkGnIG'}]), '2r1T6xGTVaNAqBoPH4lZEE': ('Waste It On Me (feat. BTS)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/77AiFEVeAVj2ORpC85QVJs'}, 'href': 'https://api.spotify.com/v1/artists/77AiFEVeAVj2ORpC85QVJs', 'id': '77AiFEVeAVj2ORpC85QVJs', 'name': 'Steve Aoki', 'type': 'artist', 'uri': 'spotify:artist:77AiFEVeAVj2ORpC85QVJs'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3Nrfpe0tUJi4K4DXYWgMUX'}, 'href': 'https://api.spotify.com/v1/artists/3Nrfpe0tUJi4K4DXYWgMUX', 'id': '3Nrfpe0tUJi4K4DXYWgMUX', 'name': 'BTS', 'type': 'artist', 'uri': 'spotify:artist:3Nrfpe0tUJi4K4DXYWgMUX'}]), '2xLMifQCjDGFmkHkpNLD9h': ('SICKO MODE', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/0Y5tJX1MQlPlqiwlOH1tJY'}, 'href': 'https://api.spotify.com/v1/artists/0Y5tJX1MQlPlqiwlOH1tJY', 'id': '0Y5tJX1MQlPlqiwlOH1tJY', 'name': 'Travis Scott', 'type': 'artist', 'uri': 'spotify:artist:0Y5tJX1MQlPlqiwlOH1tJY'}]), '2hnxrRNzF74mdDzpQZQukQ': ("There's No Way (feat. Julia Michaels)", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5JZ7CnR6gTvEMKX4g70Amv'}, 'href': 'https://api.spotify.com/v1/artists/5JZ7CnR6gTvEMKX4g70Amv', 'id': '5JZ7CnR6gTvEMKX4g70Amv', 'name': 'Lauv', 'type': 'artist', 'uri': 'spotify:artist:5JZ7CnR6gTvEMKX4g70Amv'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/0ZED1XzwlLHW4ZaG4lOT6m'}, 'href': 'https://api.spotify.com/v1/artists/0ZED1XzwlLHW4ZaG4lOT6m', 'id': '0ZED1XzwlLHW4ZaG4lOT6m', 'name': 'Julia Michaels', 'type': 'artist', 'uri': 'spotify:artist:0ZED1XzwlLHW4ZaG4lOT6m'}]), '2GGMabyHXnJmjY6CXhhB2e': ('Money', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4kYSro6naA4h99UJvo89HB'}, 'href': 'https://api.spotify.com/v1/artists/4kYSro6naA4h99UJvo89HB', 'id': '4kYSro6naA4h99UJvo89HB', 'name': 'Cardi B', 'type': 'artist', 'uri': 'spotify:artist:4kYSro6naA4h99UJvo89HB'}]), '5aXgz1oKK8Q9z9xvTmSnrO': ('Topanga', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6Xgp2XMz1fhVYe7i6yNAax'}, 'href': 'https://api.spotify.com/v1/artists/6Xgp2XMz1fhVYe7i6yNAax', 'id': '6Xgp2XMz1fhVYe7i6yNAax', 'name': 'Trippie Redd', 'type': 'artist', 'uri': 'spotify:artist:6Xgp2XMz1fhVYe7i6yNAax'}]), '2dpaYNEQHiRxtZbfNsse99': ('Happier', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/64KEffDW9EtZ1y2vBYgq8T'}, 'href': 'https://api.spotify.com/v1/artists/64KEffDW9EtZ1y2vBYgq8T', 'id': '64KEffDW9EtZ1y2vBYgq8T', 'name': 'Marshmello', 'type': 'artist', 'uri': 'spotify:artist:64KEffDW9EtZ1y2vBYgq8T'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/7EQ0qTo7fWT7DPxmxtSYEc'}, 'href': 'https://api.spotify.com/v1/artists/7EQ0qTo7fWT7DPxmxtSYEc', 'id': '7EQ0qTo7fWT7DPxmxtSYEc', 'name': 'Bastille', 'type': 'artist', 'uri': 'spotify:artist:7EQ0qTo7fWT7DPxmxtSYEc'}]), '5AdnkoZJuRJCYqYBIzSqFb': ('Light On', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4NZvixzsSefsNiIqXn0NDe'}, 'href': 'https://api.spotify.com/v1/artists/4NZvixzsSefsNiIqXn0NDe', 'id': '4NZvixzsSefsNiIqXn0NDe', 'name': 'Maggie Rogers', 'type': 'artist', 'uri': 'spotify:artist:4NZvixzsSefsNiIqXn0NDe'}]), '05mAIVLkIWc2d1UBYZBCp8': ('1999', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/25uiPmTg16RbhZWAqwLBy5'}, 'href': 'https://api.spotify.com/v1/artists/25uiPmTg16RbhZWAqwLBy5', 'id': '25uiPmTg16RbhZWAqwLBy5', 'name': 'Charli XCX', 'type': 'artist', 'uri': 'spotify:artist:25uiPmTg16RbhZWAqwLBy5'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3WGpXCj9YhhfX11TToZcXP'}, 'href': 'https://api.spotify.com/v1/artists/3WGpXCj9YhhfX11TToZcXP', 'id': '3WGpXCj9YhhfX11TToZcXP', 'name': 'Troye Sivan', 'type': 'artist', 'uri': 'spotify:artist:3WGpXCj9YhhfX11TToZcXP'}]), '4J4zx8xGJpuGndrVc06KaT': ('Diamond Heart', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/7vk5e3vY1uw9plTHJAMwjN'}, 'href': 'https://api.spotify.com/v1/artists/7vk5e3vY1uw9plTHJAMwjN', 'id': '7vk5e3vY1uw9plTHJAMwjN', 'name': 'Alan Walker', 'type': 'artist', 'uri': 'spotify:artist:7vk5e3vY1uw9plTHJAMwjN'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/5T8zbK3dic52T9bFu0aY8z'}, 'href': 'https://api.spotify.com/v1/artists/5T8zbK3dic52T9bFu0aY8z', 'id': '5T8zbK3dic52T9bFu0aY8z', 'name': 'Sophia Somajo', 'type': 'artist', 'uri': 'spotify:artist:5T8zbK3dic52T9bFu0aY8z'}]), '7l3E7lcozEodtVsSTCkcaA': ('ZEZE (feat. Travis Scott & Offset)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/46SHBwWsqBkxI7EeeBEQG7'}, 'href': 'https://api.spotify.com/v1/artists/46SHBwWsqBkxI7EeeBEQG7', 'id': '46SHBwWsqBkxI7EeeBEQG7', 'name': 'Kodak Black', 'type': 'artist', 'uri': 'spotify:artist:46SHBwWsqBkxI7EeeBEQG7'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/4DdkRBBYG6Yk9Ka8tdJ9BW'}, 'href': 'https://api.spotify.com/v1/artists/4DdkRBBYG6Yk9Ka8tdJ9BW', 'id': '4DdkRBBYG6Yk9Ka8tdJ9BW', 'name': 'Offset', 'type': 'artist', 'uri': 'spotify:artist:4DdkRBBYG6Yk9Ka8tdJ9BW'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/0Y5tJX1MQlPlqiwlOH1tJY'}, 'href': 'https://api.spotify.com/v1/artists/0Y5tJX1MQlPlqiwlOH1tJY', 'id': '0Y5tJX1MQlPlqiwlOH1tJY', 'name': 'Travis Scott', 'type': 'artist', 'uri': 'spotify:artist:0Y5tJX1MQlPlqiwlOH1tJY'}]), '1tT55K6VEyO6XFDxK4lDQe': ('In My Head', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4K9aclpXgCPNFGEqRlFPal'}, 'href': 'https://api.spotify.com/v1/artists/4K9aclpXgCPNFGEqRlFPal', 'id': '4K9aclpXgCPNFGEqRlFPal', 'name': 'Peter Manos', 'type': 'artist', 'uri': 'spotify:artist:4K9aclpXgCPNFGEqRlFPal'}]), '1ArLnG0bHaHPXqf08sEKM0': ('Consequences - orchestra', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4nDoRrQiYLoBzwC5BhVJzF'}, 'href': 'https://api.spotify.com/v1/artists/4nDoRrQiYLoBzwC5BhVJzF', 'id': '4nDoRrQiYLoBzwC5BhVJzF', 'name': 'Camila Cabello', 'type': 'artist', 'uri': 'spotify:artist:4nDoRrQiYLoBzwC5BhVJzF'}]), '6r05pfZigq7Arg25pi2vRm': ('Checklist (with Calvin Harris) (feat. WizKid)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2cWZOOzeOm4WmBJRnD5R7I'}, 'href': 'https://api.spotify.com/v1/artists/2cWZOOzeOm4WmBJRnD5R7I', 'id': '2cWZOOzeOm4WmBJRnD5R7I', 'name': 'Normani', 'type': 'artist', 'uri': 'spotify:artist:2cWZOOzeOm4WmBJRnD5R7I'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/7CajNmpbOovFoOoasH2HaY'}, 'href': 'https://api.spotify.com/v1/artists/7CajNmpbOovFoOoasH2HaY', 'id': '7CajNmpbOovFoOoasH2HaY', 'name': 'Calvin Harris', 'type': 'artist', 'uri': 'spotify:artist:7CajNmpbOovFoOoasH2HaY'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3tVQdUvClmAT7URs9V3rsp'}, 'href': 'https://api.spotify.com/v1/artists/3tVQdUvClmAT7URs9V3rsp', 'id': '3tVQdUvClmAT7URs9V3rsp', 'name': 'WizKid', 'type': 'artist', 'uri': 'spotify:artist:3tVQdUvClmAT7URs9V3rsp'}]), '3ji4bcQugJj5B6NRGYDNwP': ('Thursday', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4ScCswdRlyA23odg9thgIO'}, 'href': 'https://api.spotify.com/v1/artists/4ScCswdRlyA23odg9thgIO', 'id': '4ScCswdRlyA23odg9thgIO', 'name': 'Jess Glynne', 'type': 'artist', 'uri': 'spotify:artist:4ScCswdRlyA23odg9thgIO'}]), '2jZIfoe48eUeOEnP9Ho4h2': ('No One Compares To You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1INuLZXjjVbcJRyWvD1iSq'}, 'href': 'https://api.spotify.com/v1/artists/1INuLZXjjVbcJRyWvD1iSq', 'id': '1INuLZXjjVbcJRyWvD1iSq', 'name': 'Jack & Jack', 'type': 'artist', 'uri': 'spotify:artist:1INuLZXjjVbcJRyWvD1iSq'}]), '0QIjsbm2fh1cJ45XO9eGqq': ('Wake Up in the Sky', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/13y7CgLHjMVRMDqxdx0Xdo'}, 'href': 'https://api.spotify.com/v1/artists/13y7CgLHjMVRMDqxdx0Xdo', 'id': '13y7CgLHjMVRMDqxdx0Xdo', 'name': 'Gucci Mane', 'type': 'artist', 'uri': 'spotify:artist:13y7CgLHjMVRMDqxdx0Xdo'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/0du5cEVh5yTK9QJze8zA0C'}, 'href': 'https://api.spotify.com/v1/artists/0du5cEVh5yTK9QJze8zA0C', 'id': '0du5cEVh5yTK9QJze8zA0C', 'name': 'Bruno Mars', 'type': 'artist', 'uri': 'spotify:artist:0du5cEVh5yTK9QJze8zA0C'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/46SHBwWsqBkxI7EeeBEQG7'}, 'href': 'https://api.spotify.com/v1/artists/46SHBwWsqBkxI7EeeBEQG7', 'id': '46SHBwWsqBkxI7EeeBEQG7', 'name': 'Kodak Black', 'type': 'artist', 'uri': 'spotify:artist:46SHBwWsqBkxI7EeeBEQG7'}]), '2rbDhOo9Fh61Bbu23T2qCk': ('Always Remember Us This Way', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1HY2Jd0NmPuamShAr6KMms'}, 'href': 'https://api.spotify.com/v1/artists/1HY2Jd0NmPuamShAr6KMms', 'id': '1HY2Jd0NmPuamShAr6KMms', 'name': 'Lady Gaga', 'type': 'artist', 'uri': 'spotify:artist:1HY2Jd0NmPuamShAr6KMms'}]), '5qHirGR7M9tdm6C17DlzSY': ('REEL IT IN', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3Gm5F95VdRxW3mqCn8RPBJ'}, 'href': 'https://api.spotify.com/v1/artists/3Gm5F95VdRxW3mqCn8RPBJ', 'id': '3Gm5F95VdRxW3mqCn8RPBJ', 'name': 'Aminé', 'type': 'artist', 'uri': 'spotify:artist:3Gm5F95VdRxW3mqCn8RPBJ'}]), '2JqnpexlO9dmvjUMCaLCLJ': ('Love Someone', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/25u4wHJWxCA9vO0CzxAbK7'}, 'href': 'https://api.spotify.com/v1/artists/25u4wHJWxCA9vO0CzxAbK7', 'id': '25u4wHJWxCA9vO0CzxAbK7', 'name': 'Lukas Graham', 'type': 'artist', 'uri': 'spotify:artist:25u4wHJWxCA9vO0CzxAbK7'}]), '1wsLHgXJ4SKIfd5ePSX1hD': ('Polaroid', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1HBjj22wzbscIZ9sEb5dyf'}, 'href': 'https://api.spotify.com/v1/artists/1HBjj22wzbscIZ9sEb5dyf', 'id': '1HBjj22wzbscIZ9sEb5dyf', 'name': 'Jonas Blue', 'type': 'artist', 'uri': 'spotify:artist:1HBjj22wzbscIZ9sEb5dyf'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/5pUo3fmmHT8bhCyHE52hA6'}, 'href': 'https://api.spotify.com/v1/artists/5pUo3fmmHT8bhCyHE52hA6', 'id': '5pUo3fmmHT8bhCyHE52hA6', 'name': 'Liam Payne', 'type': 'artist', 'uri': 'spotify:artist:5pUo3fmmHT8bhCyHE52hA6'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/1cZQSpDsxgKIX2yW5OR9Ot'}, 'href': 'https://api.spotify.com/v1/artists/1cZQSpDsxgKIX2yW5OR9Ot', 'id': '1cZQSpDsxgKIX2yW5OR9Ot', 'name': 'Lennon Stella', 'type': 'artist', 'uri': 'spotify:artist:1cZQSpDsxgKIX2yW5OR9Ot'}]), '3EPXxR3ImUwfayaurPi3cm': ('Be Alright', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3QSQFmccmX81fWCUSPTS7y'}, 'href': 'https://api.spotify.com/v1/artists/3QSQFmccmX81fWCUSPTS7y', 'id': '3QSQFmccmX81fWCUSPTS7y', 'name': 'Dean Lewis', 'type': 'artist', 'uri': 'spotify:artist:3QSQFmccmX81fWCUSPTS7y'}]), '04MLEeAMuV9IlHEsD8vF6A': ('No Stylist', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6vXTefBL93Dj5IqAWq6OTv'}, 'href': 'https://api.spotify.com/v1/artists/6vXTefBL93Dj5IqAWq6OTv', 'id': '6vXTefBL93Dj5IqAWq6OTv', 'name': 'French Montana', 'type': 'artist', 'uri': 'spotify:artist:6vXTefBL93Dj5IqAWq6OTv'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3TVXtAsR1Inumwj472S9r4'}, 'href': 'https://api.spotify.com/v1/artists/3TVXtAsR1Inumwj472S9r4', 'id': '3TVXtAsR1Inumwj472S9r4', 'name': 'Drake', 'type': 'artist', 'uri': 'spotify:artist:3TVXtAsR1Inumwj472S9r4'}]), '33zcmmElV1YbRZe57biUjg': ('Celoso', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6i3DxIlAqnDkwELLw4aVrx'}, 'href': 'https://api.spotify.com/v1/artists/6i3DxIlAqnDkwELLw4aVrx', 'id': '6i3DxIlAqnDkwELLw4aVrx', 'name': 'Lele Pons', 'type': 'artist', 'uri': 'spotify:artist:6i3DxIlAqnDkwELLw4aVrx'}]), '0u2P5u6lvoDfwTYjAADbn4': ('lovely (with Khalid)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6qqNVTkY8uBg9cP3Jd7DAH'}, 'href': 'https://api.spotify.com/v1/artists/6qqNVTkY8uBg9cP3Jd7DAH', 'id': '6qqNVTkY8uBg9cP3Jd7DAH', 'name': 'Billie Eilish', 'type': 'artist', 'uri': 'spotify:artist:6qqNVTkY8uBg9cP3Jd7DAH'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/6LuN9FCkKOj5PcnpouEgny'}, 'href': 'https://api.spotify.com/v1/artists/6LuN9FCkKOj5PcnpouEgny', 'id': '6LuN9FCkKOj5PcnpouEgny', 'name': 'Khalid', 'type': 'artist', 'uri': 'spotify:artist:6LuN9FCkKOj5PcnpouEgny'}]), '2GwShNdcJHDLEkGO4L34lF': ('Back To You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/38SWPOPO1YqxUPnT4AAoID'}, 'href': 'https://api.spotify.com/v1/artists/38SWPOPO1YqxUPnT4AAoID', 'id': '38SWPOPO1YqxUPnT4AAoID', 'name': 'The Mayries', 'type': 'artist', 'uri': 'spotify:artist:38SWPOPO1YqxUPnT4AAoID'}]), '2RttW7RAu5nOAfq6YFvApB': ('Happier', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6eUKZXaKkcviH0Ku9w2n3V'}, 'href': 'https://api.spotify.com/v1/artists/6eUKZXaKkcviH0Ku9w2n3V', 'id': '6eUKZXaKkcviH0Ku9w2n3V', 'name': 'Ed Sheeran', 'type': 'artist', 'uri': 'spotify:artist:6eUKZXaKkcviH0Ku9w2n3V'}]), '69vToJ9BMbbLlFZo7k7A7B': ('You Are The Reason', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ydoSd3N2mwgwBHtF6K7eX'}, 'href': 'https://api.spotify.com/v1/artists/6ydoSd3N2mwgwBHtF6K7eX', 'id': '6ydoSd3N2mwgwBHtF6K7eX', 'name': 'Calum Scott', 'type': 'artist', 'uri': 'spotify:artist:6ydoSd3N2mwgwBHtF6K7eX'}]), '7krbSH3rd8lhIZvuzTV3Bl': ('Naked', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4IWBUUAFIplrNtaOHcJPRM'}, 'href': 'https://api.spotify.com/v1/artists/4IWBUUAFIplrNtaOHcJPRM', 'id': '4IWBUUAFIplrNtaOHcJPRM', 'name': 'James Arthur', 'type': 'artist', 'uri': 'spotify:artist:4IWBUUAFIplrNtaOHcJPRM'}]), '7sTtHHrD0zDpmzQzH3zegz': ('Consequences', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4nDoRrQiYLoBzwC5BhVJzF'}, 'href': 'https://api.spotify.com/v1/artists/4nDoRrQiYLoBzwC5BhVJzF', 'id': '4nDoRrQiYLoBzwC5BhVJzF', 'name': 'Camila Cabello', 'type': 'artist', 'uri': 'spotify:artist:4nDoRrQiYLoBzwC5BhVJzF'}]), '4VuS959DSpr82t3qBqCrWG': ('Supermarket Flowers', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6eUKZXaKkcviH0Ku9w2n3V'}, 'href': 'https://api.spotify.com/v1/artists/6eUKZXaKkcviH0Ku9w2n3V', 'id': '6eUKZXaKkcviH0Ku9w2n3V', 'name': 'Ed Sheeran', 'type': 'artist', 'uri': 'spotify:artist:6eUKZXaKkcviH0Ku9w2n3V'}]), '0VhgEqMTNZwYL1ARDLLNCX': ('Can I Be Him', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4IWBUUAFIplrNtaOHcJPRM'}, 'href': 'https://api.spotify.com/v1/artists/4IWBUUAFIplrNtaOHcJPRM', 'id': '4IWBUUAFIplrNtaOHcJPRM', 'name': 'James Arthur', 'type': 'artist', 'uri': 'spotify:artist:4IWBUUAFIplrNtaOHcJPRM'}]), '5Cv1xqpyciZZuHHR7xr2l0': ('the broken hearts club', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3iri9nBFs9e4wN7PLIetAw'}, 'href': 'https://api.spotify.com/v1/artists/3iri9nBFs9e4wN7PLIetAw', 'id': '3iri9nBFs9e4wN7PLIetAw', 'name': 'gnash', 'type': 'artist', 'uri': 'spotify:artist:3iri9nBFs9e4wN7PLIetAw'}]), '0jllH0usRFD4LJkJnGK9Lf': ('Complicated', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1QRj3hoop9Mv5VvHQkwPEp'}, 'href': 'https://api.spotify.com/v1/artists/1QRj3hoop9Mv5VvHQkwPEp', 'id': '1QRj3hoop9Mv5VvHQkwPEp', 'name': "Olivia O'Brien", 'type': 'artist', 'uri': 'spotify:artist:1QRj3hoop9Mv5VvHQkwPEp'}]), '5GT8b1dFaOWFF5twsmSOYx': ('The Best You Had', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/7AzjETXRUKNRSJHMW9GIqd'}, 'href': 'https://api.spotify.com/v1/artists/7AzjETXRUKNRSJHMW9GIqd', 'id': '7AzjETXRUKNRSJHMW9GIqd', 'name': 'Nina Nesbitt', 'type': 'artist', 'uri': 'spotify:artist:7AzjETXRUKNRSJHMW9GIqd'}]), '7fkXzzIVo98CgjOkpd9H0V': ('Already Gone', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/0MeLMJJcouYXCymQSHPn8g'}, 'href': 'https://api.spotify.com/v1/artists/0MeLMJJcouYXCymQSHPn8g', 'id': '0MeLMJJcouYXCymQSHPn8g', 'name': 'Sleeping At Last', 'type': 'artist', 'uri': 'spotify:artist:0MeLMJJcouYXCymQSHPn8g'}]), '4VPXFi4vFTtS9wHe6oMQaT': ("I Can't Fall in Love Without You", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/1Xylc3o4UrD53lo9CvFvVg'}, 'href': 'https://api.spotify.com/v1/artists/1Xylc3o4UrD53lo9CvFvVg', 'id': '1Xylc3o4UrD53lo9CvFvVg', 'name': 'Zara Larsson', 'type': 'artist', 'uri': 'spotify:artist:1Xylc3o4UrD53lo9CvFvVg'}]), '2TukzxmwVW0JkiI8isgUXd': ('Need Somebody (Acoustic)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6YxrfNCKBcQlbITpmDLErL'}, 'href': 'https://api.spotify.com/v1/artists/6YxrfNCKBcQlbITpmDLErL', 'id': '6YxrfNCKBcQlbITpmDLErL', 'name': 'Xuitcasecity', 'type': 'artist', 'uri': 'spotify:artist:6YxrfNCKBcQlbITpmDLErL'}]), '4GUXTRTjQ4voLzwLw9qbPx': ('I Believe You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5qa31A9HySw3T7MKWI9bGg'}, 'href': 'https://api.spotify.com/v1/artists/5qa31A9HySw3T7MKWI9bGg', 'id': '5qa31A9HySw3T7MKWI9bGg', 'name': 'FLETCHER', 'type': 'artist', 'uri': 'spotify:artist:5qa31A9HySw3T7MKWI9bGg'}]), '0UkZ0epPTahsPgLXacC5EG': ('Worthy Of You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2nJYGgfTf2846LtVB3AES8'}, 'href': 'https://api.spotify.com/v1/artists/2nJYGgfTf2846LtVB3AES8', 'id': '2nJYGgfTf2846LtVB3AES8', 'name': 'Plested', 'type': 'artist', 'uri': 'spotify:artist:2nJYGgfTf2846LtVB3AES8'}]), '0QZ5yyl6B6utIWkxeBDxQN': ('The Night We Met', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6ltzsmQQbmdoHHbLZ4ZN25'}, 'href': 'https://api.spotify.com/v1/artists/6ltzsmQQbmdoHHbLZ4ZN25', 'id': '6ltzsmQQbmdoHHbLZ4ZN25', 'name': 'Lord Huron', 'type': 'artist', 'uri': 'spotify:artist:6ltzsmQQbmdoHHbLZ4ZN25'}]), '4KnnWpUyPfQD6X5SQSTlH3': ('Turn Back Time', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3pVuaUisHmRfVy53qWwmql'}, 'href': 'https://api.spotify.com/v1/artists/3pVuaUisHmRfVy53qWwmql', 'id': '3pVuaUisHmRfVy53qWwmql', 'name': 'Daniel Schulz', 'type': 'artist', 'uri': 'spotify:artist:3pVuaUisHmRfVy53qWwmql'}]), '7oHijHxh7cI40fNC4S619V': ('Runaway', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4xnihxcoXWK3UqryOSnbw5'}, 'href': 'https://api.spotify.com/v1/artists/4xnihxcoXWK3UqryOSnbw5', 'id': '4xnihxcoXWK3UqryOSnbw5', 'name': 'Sasha Sloan', 'type': 'artist', 'uri': 'spotify:artist:4xnihxcoXWK3UqryOSnbw5'}]), '3gwJhiaCPcdLgPePwxPd1S': ('Only You - Acoustic', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5nQybVOGIy5TZ1XK9CaDiS'}, 'href': 'https://api.spotify.com/v1/artists/5nQybVOGIy5TZ1XK9CaDiS', 'id': '5nQybVOGIy5TZ1XK9CaDiS', 'name': 'Sarah Close', 'type': 'artist', 'uri': 'spotify:artist:5nQybVOGIy5TZ1XK9CaDiS'}]), '7tTRP2vA00uScZ4SjB3ZQZ': ('Rush (feat. Jessie Reyez)', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4GNC7GD6oZMSxPGyXy4MNB'}, 'href': 'https://api.spotify.com/v1/artists/4GNC7GD6oZMSxPGyXy4MNB', 'id': '4GNC7GD6oZMSxPGyXy4MNB', 'name': 'Lewis Capaldi', 'type': 'artist', 'uri': 'spotify:artist:4GNC7GD6oZMSxPGyXy4MNB'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/3KedxarmBCyFBevnqQHy3P'}, 'href': 'https://api.spotify.com/v1/artists/3KedxarmBCyFBevnqQHy3P', 'id': '3KedxarmBCyFBevnqQHy3P', 'name': 'Jessie Reyez', 'type': 'artist', 'uri': 'spotify:artist:3KedxarmBCyFBevnqQHy3P'}]), '1almCHdsfikRPfVB9VrEdT': ('Little Do You Know', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/58MLl9nC29IXbE4nEtuoP2'}, 'href': 'https://api.spotify.com/v1/artists/58MLl9nC29IXbE4nEtuoP2', 'id': '58MLl9nC29IXbE4nEtuoP2', 'name': 'Alex & Sierra', 'type': 'artist', 'uri': 'spotify:artist:58MLl9nC29IXbE4nEtuoP2'}]), '1afyMOxQCyfxUOSrCkStsy': ('Wildfire', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6AyATGg7mDgBlZ4N5uNog0'}, 'href': 'https://api.spotify.com/v1/artists/6AyATGg7mDgBlZ4N5uNog0', 'id': '6AyATGg7mDgBlZ4N5uNog0', 'name': 'SYML', 'type': 'artist', 'uri': 'spotify:artist:6AyATGg7mDgBlZ4N5uNog0'}]), '52okn5MNA47tk87PeZJLEL': ('Let You Down', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6fOMl44jA4Sp5b9PpYCkzz'}, 'href': 'https://api.spotify.com/v1/artists/6fOMl44jA4Sp5b9PpYCkzz', 'id': '6fOMl44jA4Sp5b9PpYCkzz', 'name': 'NF', 'type': 'artist', 'uri': 'spotify:artist:6fOMl44jA4Sp5b9PpYCkzz'}]), '3g2koMSfvsAGKcBAHyFtUF': ('Alone With You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/6TdfKQvrdHZdr4DIzjuWOr'}, 'href': 'https://api.spotify.com/v1/artists/6TdfKQvrdHZdr4DIzjuWOr', 'id': '6TdfKQvrdHZdr4DIzjuWOr', 'name': 'Canyon City', 'type': 'artist', 'uri': 'spotify:artist:6TdfKQvrdHZdr4DIzjuWOr'}]), '7IL3UOlcJ6nmcCMwpnlfcA': ("Something's Gotta Give", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4nDoRrQiYLoBzwC5BhVJzF'}, 'href': 'https://api.spotify.com/v1/artists/4nDoRrQiYLoBzwC5BhVJzF', 'id': '4nDoRrQiYLoBzwC5BhVJzF', 'name': 'Camila Cabello', 'type': 'artist', 'uri': 'spotify:artist:4nDoRrQiYLoBzwC5BhVJzF'}]), '5NRl32BO29q8xtWFvOlHZE': ('River Of Tears', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2wUjUUtkb5lvLKcGKsKqsR'}, 'href': 'https://api.spotify.com/v1/artists/2wUjUUtkb5lvLKcGKsKqsR', 'id': '2wUjUUtkb5lvLKcGKsKqsR', 'name': 'Alessia Cara', 'type': 'artist', 'uri': 'spotify:artist:2wUjUUtkb5lvLKcGKsKqsR'}]), '2S2od3hT7ceytw7d1pTRuE': ('Again', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/55fhWPvDiMpLnE4ZzNXZyW'}, 'href': 'https://api.spotify.com/v1/artists/55fhWPvDiMpLnE4ZzNXZyW', 'id': '55fhWPvDiMpLnE4ZzNXZyW', 'name': 'Noah Cyrus', 'type': 'artist', 'uri': 'spotify:artist:55fhWPvDiMpLnE4ZzNXZyW'}, {'external_urls': {'spotify': 'https://open.spotify.com/artist/15UsOTVnJzReFVN1VCnxy4'}, 'href': 'https://api.spotify.com/v1/artists/15UsOTVnJzReFVN1VCnxy4', 'id': '15UsOTVnJzReFVN1VCnxy4', 'name': 'XXXTENTACION', 'type': 'artist', 'uri': 'spotify:artist:15UsOTVnJzReFVN1VCnxy4'}]), '3wD9lRUL8hYJzPnJDSCzD9': ('Only You', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/48sLioddyaXkuhyHXSkpsB'}, 'href': 'https://api.spotify.com/v1/artists/48sLioddyaXkuhyHXSkpsB', 'id': '48sLioddyaXkuhyHXSkpsB', 'name': 'Parson James', 'type': 'artist', 'uri': 'spotify:artist:48sLioddyaXkuhyHXSkpsB'}]), '4L2K7JKseFCBoHMZEAszW0': ('Jealous', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2feDdbD5araYcm6JhFHHw7'}, 'href': 'https://api.spotify.com/v1/artists/2feDdbD5araYcm6JhFHHw7', 'id': '2feDdbD5araYcm6JhFHHw7', 'name': 'Labrinth', 'type': 'artist', 'uri': 'spotify:artist:2feDdbD5araYcm6JhFHHw7'}]), '41WTP0gosjYD74B06uS2tL': ("You Said You'd Grow Old With Me", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/21aa4pj9BvbFB2iT8kRpnq'}, 'href': 'https://api.spotify.com/v1/artists/21aa4pj9BvbFB2iT8kRpnq', 'id': '21aa4pj9BvbFB2iT8kRpnq', 'name': 'Michael Schulte', 'type': 'artist', 'uri': 'spotify:artist:21aa4pj9BvbFB2iT8kRpnq'}]), '6dVa7xk5dOoT6pOkDw1TMH': ('Brother', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4BxCuXFJrSWGi1KHcVqaU4'}, 'href': 'https://api.spotify.com/v1/artists/4BxCuXFJrSWGi1KHcVqaU4', 'id': '4BxCuXFJrSWGi1KHcVqaU4', 'name': 'Kodaline', 'type': 'artist', 'uri': 'spotify:artist:4BxCuXFJrSWGi1KHcVqaU4'}]), '22uyZjmZR0DX8FyrIwQl35': ('1,000 Years', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/426VSUSxx9puUYFgp7l7EQ'}, 'href': 'https://api.spotify.com/v1/artists/426VSUSxx9puUYFgp7l7EQ', 'id': '426VSUSxx9puUYFgp7l7EQ', 'name': 'Liza Anne', 'type': 'artist', 'uri': 'spotify:artist:426VSUSxx9puUYFgp7l7EQ'}]), '0P3wANnHa96Q7qOBzZrvD5': ('Should Have Been Us', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/58xmt13Xf7RsThzGOM1aKh'}, 'href': 'https://api.spotify.com/v1/artists/58xmt13Xf7RsThzGOM1aKh', 'id': '58xmt13Xf7RsThzGOM1aKh', 'name': 'Travis Atreo', 'type': 'artist', 'uri': 'spotify:artist:58xmt13Xf7RsThzGOM1aKh'}]), '3yURJ9poXVr39qR04DnlfZ': ('Empty House', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/2lKeiALM1T2TZrOiTYlLNA'}, 'href': 'https://api.spotify.com/v1/artists/2lKeiALM1T2TZrOiTYlLNA', 'id': '2lKeiALM1T2TZrOiTYlLNA', 'name': 'Billy Lockett', 'type': 'artist', 'uri': 'spotify:artist:2lKeiALM1T2TZrOiTYlLNA'}]), '72C7aUQECOhNtnD0AC36ua': ("They Don't Know About Us", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/4AK6F7OLvEQ5QYCBNiQWHq'}, 'href': 'https://api.spotify.com/v1/artists/4AK6F7OLvEQ5QYCBNiQWHq', 'id': '4AK6F7OLvEQ5QYCBNiQWHq', 'name': 'One Direction', 'type': 'artist', 'uri': 'spotify:artist:4AK6F7OLvEQ5QYCBNiQWHq'}]), '6PmhCEPMjhSo9j8hz767xy': ("Summer's Gone", [{'external_urls': {'spotify': 'https://open.spotify.com/artist/5Mzwod7pfk4JkLR29O3v7j'}, 'href': 'https://api.spotify.com/v1/artists/5Mzwod7pfk4JkLR29O3v7j', 'id': '5Mzwod7pfk4JkLR29O3v7j', 'name': 'Maria Lynn', 'type': 'artist', 'uri': 'spotify:artist:5Mzwod7pfk4JkLR29O3v7j'}]), '0cTp3CDDzHYXR96u1qrPOI': ('Bittersweet', [{'external_urls': {'spotify': 'https://open.spotify.com/artist/3841DHBEOAE2ksodVZkV7U'}, 'href': 'https://api.spotify.com/v1/artists/3841DHBEOAE2ksodVZkV7U', 'id': '3841DHBEOAE2ksodVZkV7U', 'name': 'George Glew', 'type': 'artist', 'uri': 'spotify:artist:3841DHBEOAE2ksodVZkV7U'}])}
+    def emotion_analyzer(text,emotion_dict=emotion_dict):
+        #Set up the result dictionary
+        emotions = {x for y in emotion_dict.values() for x in y}
+        emotion_count = dict()
+        for emotion in emotions:
+            emotion_count[emotion] = 0
+
+        words = []
+        total_words = len(text.split())
+        for word in text.split():
+            if emotion_dict.get(word):
+                words.append(word)
+                for emotion in emotion_dict.get(word):
+                    emotion_count[emotion] += 1
+        for e in emotions:
+            emotion_count[e] = emotion_count[e]/len(words)
+        total = emotion_count['anger']+emotion_count['disgust']+emotion_count['fear']+emotion_count['joy']+emotion_count['sadness']+emotion_count['anticipation']
+        vector = [emotion_count['anger']/total, emotion_count['anticipation']/total, emotion_count['disgust']/total, emotion_count['fear']/total, emotion_count['joy']/total, emotion_count['sadness']/total]
+        return vector
 
 
-# In[3]:
-
-api = genius.Genius('9mXsJ6OfC-KdM2QF1xl_0hRVZ7KiqrQYtUwobdB4kcpVsClOHUGf_d1a8qQjfIoa')
-
-
-# In[6]:
-
-nrc = "text/NRC-emotion-lexicon-wordlevel-alphabetized-v0.92.txt"
-count=0
-emotion_dict=dict()
-with open(nrc,'r') as f:
-    all_lines = list()
-    for line in f:
-        if count < 46:
-            count+=1
-            continue
-        line = line.strip().split('\t')
-        if int(line[2]) == 1:
-            if emotion_dict.get(line[0]):
-                emotion_dict[line[0]].append(line[1])
+    def get_basic(dictionary):
+        badsongs =[]
+        basic = {}
+        for k, track in dictionary.items():
+            punct = ""
+            for c in track[0]:
+                if c in ['-', '!', '?', '(']:
+                    punct = c
+            idx = track[0].find(punct)
+            print(idx)
+            if idx == 0:
+                title = track[0]
             else:
-                emotion_dict[line[0]] = [line[1]]
+                title = track[0][:idx-1]
+            artists = []
+            #print(track)
+            for a in track[1]:
+                artists.append(a['name'])
+            artist_str = ' & '.join(str(x) for x in artists) 
+            lyrics = ""
+            try:
+                lyrics = PyLyrics.getLyrics(artist_str , title)
+                basic[k] = emotion_analyzer(lyrics,emotion_dict)
+            except:
+                print("No Lyrics Found.")
+            try:
+                #print (lyrics)
+                if lyrics == "":
+                    song = api.search_song(title.lower(), artists[0])
+                    lyrics = song.lyrics
+                    basic[k] = emotion_analyzer(lyrics,emotion_dict)
+            except:
+                print("Seriously.")
+            try:
+                if lyrics == "" and len(artists) >= 2:
+                    artist_str = ' & '. join(str(x) for x in artists[:2])
+                    print(artist_str)
+                    lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
+                    lyrics = song.lyrics
+                    print(lyrics)
+                    basic[k] = emotion_analyzer(lyrics,emotion_dict)
+            except:
+                print("Nope.")
+            try:
+                if lyrics == "" and len(artists) >= 2:
+                    artist_str = ' and '. join(str(x) for x in artists[:2])
+                    print(artist_str.lower().capitalize())
+                    lyrics = api.search_song(title.lower(),artist_str.lower().capitalize())
+                    lyrics = song.lyrics
+                    print(lyrics)
+                    basic[k] = emotion_analyzer(lyrics,emotion_dict)
+            except:
+                print('Bye.')
+                badsongs.append(k)
+        return basic
+
+    vad = "text/NRC-VAD-Lexicon.txt"
+    data = pd.read_csv(vad, delimiter = "\t")
+
+    def VAD_analyzer(text, data=data):
+        #Set up the result dictionary
+        emotions = list(data)[1:]
+        emotion_count = dict()
+        for emotion in emotions:
+            emotion_count[emotion] = 0
+        words = []
+        total_words = len(text.split())
+        for word in text.split():
+            row = data.loc[data['Word'] == word]
+            if not row.empty:
+                words.append(word)
+                for emotion in emotions:
+                    emotion_count[emotion] += row[emotion].iloc[0]
+        for e in emotions:
+            emotion_count[e] = emotion_count[e]/len(words)
+
+        return emotion_count
+
+    def get_VAD(dictionary):
+        badsongs =[]
+        vad = {}
+        for k, track in dictionary.items():
+            punct = ""
+            for c in track[0]:
+                if c in ['-', '!', '?', '(']:
+                    punct = c
+            idx = track[0].find(punct)
+            print(idx)
+            if idx == 0:
+                title = track[0]
+            else:
+                title = track[0][:idx-1]
+            artists = []
+            #print(track)
+            for a in track[1]:
+                artists.append(a['name'])
+            artist_str = ' & '.join(str(x) for x in artists) 
+            lyrics = ""
+            try:
+                lyrics = PyLyrics.getLyrics(artist_str , title)
+                vad[k] = VAD_analyzer(lyrics)
+            except:
+                print("No Lyrics Found.")
+            try:
+                #print (lyrics)
+                if lyrics == "":
+                    song = api.search_song(title.lower(), artists[0])
+                    lyrics = song.lyrics
+                    vad[k] = VAD_analyzer(lyrics)
+                    print(vad[k])
+            except:
+                print("Seriously.")
+            try:
+                if lyrics == "" and len(artists) >= 2:
+                    artist_str = ' & '. join(str(x) for x in artists[:2])
+                    print(artist_str)
+                    lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
+                    lyrics = song.lyrics
+                    #print(lyrics)
+                    vad[k] = VAD_analyzer(lyrics)
+            except:
+                print("Nope.")
+            try:
+                if lyrics == "" and len(artists) >= 2:
+                    artist_str = ' and '. join(str(x) for x in artists[:2])
+                    print(artist_str.lower().capitalize())
+                    lyrics = api.search_song(title.lower(),artist_str.lower().capitalize())
+                    lyrics = song.lyrics
+                    #print(lyrics)
+                    vad[k] = VAD_analyzer(lyrics)
+            except:
+                print('Bye.')
+                badsongs.append(k)
+        return vad
 
 
-# In[7]:
-
-def emotion_analyzer(text,emotion_dict=emotion_dict):
-    #Set up the result dictionary
-    emotions = {x for y in emotion_dict.values() for x in y}
-    emotion_count = dict()
-    for emotion in emotions:
-        emotion_count[emotion] = 0
-
-    words = []
-    total_words = len(text.split())
-    for word in text.split():
-        if emotion_dict.get(word):
-            words.append(word)
-            for emotion in emotion_dict.get(word):
-                emotion_count[emotion] += 1
-    for e in emotions:
-        emotion_count[e] = emotion_count[e]/len(words)
-    total = emotion_count['anger']+emotion_count['disgust']+emotion_count['fear']+emotion_count['joy']+emotion_count['sadness']+emotion_count['anticipation']
-    vector = [emotion_count['anger']/total, emotion_count['anticipation']/total, emotion_count['disgust']/total, emotion_count['fear']/total, emotion_count['joy']/total, emotion_count['sadness']/total]
-    return vector
-
-
-# In[13]:
-
-client_ID = 'f82a64e59bf443b5bc2cd79765c90ea8'
-client_SECRET = 'd112b2080bd848f1be4df9b659bb6280'
-client_credentials_manager = SpotifyClientCredentials(client_id=client_ID, client_secret=client_SECRET)
-spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-
-badsongs = []
-def clean_text(dictionary):
-    for k, track in dictionary.items():
-        punct = ""
-        for c in track[0]:
-            if c in ['-', '!', '?', '(']:
-                punct = c
-        idx = track[0].find(punct)
-        print(idx)
-        if idx == 0:
-            title = track[0]
-        else:
-            title = track[0][:idx-1]
-        artists = []
-        #print(track)
-        for a in track[1]:
-
-            artists.append(a['name'])
-        artist_str = ' & '.join(str(x) for x in artists) 
-        print(title, artist_str)
-        lyrics = ""
-        try:
-            lyrics = PyLyrics.getLyrics(artist_str , title)
-            print(emotion_analyzer(lyrics,emotion_dict))
-        except:
-            print("No Lyrics Found.")
-        try:
-            #print (lyrics)
-            if lyrics == "":
-                song = api.search_song(title.lower(), artists[0])
-                lyrics = song.lyrics
-                print(emotion_analyzer(lyrics,emotion_dict))
-        except:
-            print("Seriously.")
-        try:
-            if lyrics == "" and len(artists) >= 2:
-                artist_str = ' & '. join(str(x) for x in artists[:2])
-                print(artist_str)
-                lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
-                lyrics = song.lyrics
-                print(lyrics)
-                print(emotion_analyzer(lyrics,emotion_dict))
-        except:
-            print("Nope.")
-        try:
-            if lyrics == "" and len(artists) >= 2:
-                artist_str = ' and '. join(str(x) for x in artists[:2])
-                print(artist_str.lower().capitalize())
-                lyrics = api.search_song(title.lower(),artist_str.lower().capitalize())
-                lyrics = song.lyrics
-                print(lyrics)
-                print(emotion_analyzer(lyrics,emotion_dict))
-        except:
-            print('Bye.')
-            badsongs.append(k)
-
-
-# In[14]:
-
-print(badsongs)
-
-
-# In[ ]:
-
-
+    basic = get_basic(dictionary)
+    vad = get_VAD(dictionary)
+    return basic, vad
 
