@@ -12,7 +12,6 @@ from ConvNet import ConvNet
 from getUserSongs import *
 import lyricsgenius as genius
 
-<<<<<<< HEAD
 from dimensional import get_emotion
 
 def get_dimensional_emotion():
@@ -23,26 +22,6 @@ def get_dimensional_emotion():
 def get_basic_ming(): 
     dictionary = get_dictionary()
     
-=======
-def get_emotions_audio_ming(mp3folder, model):
-    #mp3file = "data/" + k + ".mp3"
-    ID = get_dictionary()
-    songs_emo = {}
-    for k, v in ID.items():
-        mp3file = mp3folder + k + '.mp3'
-        spec = lib.audio_read(mp3file)# extract spectrogram 
-        spec = np.expand_dims(spec, axis=0)
-        spec = np.expand_dims(spec, axis=0)
-        spec = torch.from_numpy(spec)
-        pred = model(spec)
-        pred = pred.data.numpy()
-        pred = pred[0]
-        high = max(pred)
-        pred = [0 if i!=high else 1 for i in pred]
-        pred = np.array(pred)
-        songs_emo[k] = pred
-    return songs_emo
->>>>>>> 5a99615fce493d1806f0fe202e185d18352f9b2c
 
 def get_song_emotions():
     api = genius.Genius('9mXsJ6OfC-KdM2QF1xl_0hRVZ7KiqrQYtUwobdB4kcpVsClOHUGf_d1a8qQjfIoa')
