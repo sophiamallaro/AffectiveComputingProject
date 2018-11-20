@@ -1,34 +1,24 @@
-import dimensional
-from dimensional import *
+from dimensional import get_dimensional_emotion
 from getUserSongs import *
-import lyricsgenius as genius
 from Basic_Emotions_combine import *
 from titles import *
 import math
 import torch
 import lib 
+import json
+from pprint import pprint
 
-def get_scores_text():
-    basic, va = get_text_scores(get_dictionary())
-    print("BASIC SCORES")
-    print(basic)
-    print("VA")
-    print(va)
-
-
-def get_valence_scores():
-    va_dictionary = get_dimensional_emotion()
-    return va_dictionary
-
-def generate_playlist_va(result, user_val, user_arousal):
+def generate_playlist_va(dictionary, user_valence, user_arousal, min_dist = 0.2):
+    dimensional_dictionary = get_dimensional_emotion(dictionary)
     song_list = []
-    for key, value in result.items():
-        x = value["valence"]
-        y = value["arousal"]
-        temp = math.sqrt( (x - user_val)**2 + (y - user_arousal)**2 )
-        if(temp < 0.5):
-            song_list.append(key)
-    make_playlist("Valence-Arousal", song_list)
+    for song_id, va_dict in dimensional_dictionary.items():
+        valence = va_dict["valence"]
+        arousal = va_dict["arousal"]
+        temp = math.sqrt( (valence - user_valence)**2 + (arousal - user_arousal)**2 )
+        if(temp < min_dist):
+            song_list.append(song_id)
+    # print(song_list)
+    # make_playlist("Valence-Arousal", song_list)
     
 def generate_playlist_be(user_basic_emotion): 
     song_list = get_recomendations(user_basic_emotion)
@@ -57,12 +47,17 @@ def get_emotions_audio(mp3folder, model):
 
 
 if __name__ == "__main__":
-    #va_scores = get_valence_scores()
-    #generate_playlist_va(va_scores, .5, .5)
-    #get_scores_text()
-    PATH = 'model/model.pth'
-    model = ConvNet(6)
-    model.load_state_dict(torch.load(PATH))
-    model.eval()
-    dic = get_emotions_audio('data', model)
-    print(dic)
+    dictionary = json.load(open("dictionary.json"))
+    new_dictionary = dict([(k,v) for k, v in list(dictionary.items())[:2]])
+    generate_playlist_va(dictionary, .5, .5)
+    # basic, va = get_text_scores(dictionary)
+    # pprint(basic)
+    # print()
+    # pprint(va)
+
+    # PATH = 'model/model.pth'
+    # model = ConvNet(6)
+    # model.load_state_dict(torch.load(PATH))
+    # model.eval()
+    # dic = get_emotions_audio('data', model)
+    # print(dic)

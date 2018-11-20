@@ -26,26 +26,27 @@ def get_dimensional_emotion(tracks_dictionary, songs_folder = "data/", temp_fold
         mp3_file_path = songs_folder + "{}.mp3".format(key)
         wav_file_path = temp_folder + "temp_{}.wav".format(key)
         feature_file_path = temp_folder + "temp_features_{}.csv".format(key)
-        print("{}. id: {}".format(i + 1, key))
+        print("{}. id: {}...".format(i + 1, key), end = "")
 
         if not os.path.exists(feature_file_path):
             if os.path.exists(mp3_file_path):
                 mp3_file = pydub.AudioSegment.from_mp3(mp3_file_path)
                 mp3_file.export(wav_file_path, format="wav")
-                print("converted mp3 to wav")
+                print("converted mp3 to wav...", end = "")
 
                 os.system("opensmile/inst/bin/SMILExtract -noconsoleoutput -C dimensional/IS13_ComParE_lld-func.conf -I {} -O {}".format(wav_file_path, feature_file_path))
-                print("features created")
+                print("features created...", end = "")
                 print()
                 found_features = True
             else:
-                print("mp3 not found")
+                print("mp3 not found...", end = "")
         else:
             found_features = True
-            print("features already created")
+            print("features already created...", end = "")
 
         if found_features:
             song_ids.append(key)
+        print("done")
 
         if i == limit - 1:
             break
@@ -61,9 +62,7 @@ def get_dimensional_emotion(tracks_dictionary, songs_folder = "data/", temp_fold
         song_df = pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0)
         aggregate_df.loc[song_id, mean_columns] = song_df[columns].mean().values.copy()
         aggregate_df.loc[song_id, std_columns] = song_df[columns].std().values.copy()
-        print("done aggregating {}".format(song_id))
-    print("features created for demo songs\n")
-    print()
+    print("features aggregated for songs\n")
 
     if remove_temp:
         print("removing temp wav and feature files...", end = "")

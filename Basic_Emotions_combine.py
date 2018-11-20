@@ -12,13 +12,6 @@ from ConvNet import ConvNet
 from getUserSongs import *
 import lyricsgenius as genius
 
-from dimensional import get_emotion
-
-def get_dimensional_emotion():
-    dictionary = get_dictionary()
-    dimensional_dict = get_emotion(dictionary)
-    return dimensional_dict
-
 def get_emotions_audio(mp3folder, model):
     #mp3file = "data/" + k + ".mp3"
     ID = get_dictionary()

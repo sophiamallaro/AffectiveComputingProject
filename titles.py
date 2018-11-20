@@ -35,7 +35,7 @@ def get_text_scores(dictionary):
             emotion_count[emotion] = 0
 
         words = []
-        total_words = len(text.split())
+        # total_words = len(text.split())
         for word in text.split():
             if emotion_dict.get(word):
                 words.append(word)
@@ -57,7 +57,7 @@ def get_text_scores(dictionary):
                 if c in ['-', '!', '?', '(']:
                     punct = c
             idx = track[0].find(punct)
-            print(idx)
+            # print(idx)
             if idx == 0:
                 title = track[0]
             else:
@@ -72,7 +72,7 @@ def get_text_scores(dictionary):
                 lyrics = PyLyrics.getLyrics(artist_str , title)
                 basic[k] = emotion_analyzer(lyrics,emotion_dict)
             except:
-                print("No Lyrics Found.")
+                pass
             try:
                 #print (lyrics)
                 if lyrics == "":
@@ -80,27 +80,29 @@ def get_text_scores(dictionary):
                     lyrics = song.lyrics
                     basic[k] = emotion_analyzer(lyrics,emotion_dict)
             except:
-                print("Seriously.")
+                pass
+                # print("Seriously.")
             try:
                 if lyrics == "" and len(artists) >= 2:
                     artist_str = ' & '. join(str(x) for x in artists[:2])
-                    print(artist_str)
+                    # print(artist_str)
                     lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
                     lyrics = song.lyrics
-                    print(lyrics)
+                    # print(lyrics)
                     basic[k] = emotion_analyzer(lyrics,emotion_dict)
             except:
-                print("Nope.")
+                pass
+                # print("Nope.")
             try:
                 if lyrics == "" and len(artists) >= 2:
                     artist_str = ' and '. join(str(x) for x in artists[:2])
-                    print(artist_str.lower().capitalize())
+                    # print(artist_str.lower().capitalize())
                     lyrics = api.search_song(title.lower(),artist_str.lower().capitalize())
                     lyrics = song.lyrics
-                    print(lyrics)
+                    # print(lyrics)
                     basic[k] = emotion_analyzer(lyrics,emotion_dict)
             except:
-                print('Bye.')
+                # print('Bye.')
                 badsongs.append(k)
         return basic
 
@@ -114,7 +116,7 @@ def get_text_scores(dictionary):
         for emotion in emotions:
             emotion_count[emotion] = 0
         words = []
-        total_words = len(text.split())
+        # total_words = len(text.split())
         for word in text.split():
             row = data.loc[data['Word'] == word]
             if not row.empty:
@@ -135,7 +137,7 @@ def get_text_scores(dictionary):
                 if c in ['-', '!', '?', '(']:
                     punct = c
             idx = track[0].find(punct)
-            print(idx)
+            # print(idx)
             if idx == 0:
                 title = track[0]
             else:
@@ -150,41 +152,49 @@ def get_text_scores(dictionary):
                 lyrics = PyLyrics.getLyrics(artist_str , title)
                 vad[k] = VAD_analyzer(lyrics)
             except:
-                print("No Lyrics Found.")
+                pass
+                # print("No Lyrics Found.")
             try:
                 #print (lyrics)
                 if lyrics == "":
                     song = api.search_song(title.lower(), artists[0])
                     lyrics = song.lyrics
                     vad[k] = VAD_analyzer(lyrics)
-                    print(vad[k])
+                    # print(vad[k])
             except:
-                print("Seriously.")
+                pass
+                # print("Seriously.")
             try:
                 if lyrics == "" and len(artists) >= 2:
                     artist_str = ' & '. join(str(x) for x in artists[:2])
-                    print(artist_str)
+                    # print(artist_str)
                     lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
                     lyrics = song.lyrics
                     #print(lyrics)
                     vad[k] = VAD_analyzer(lyrics)
             except:
-                print("Nope.")
+                pass
+                # print("Nope.")
             try:
                 if lyrics == "" and len(artists) >= 2:
                     artist_str = ' and '. join(str(x) for x in artists[:2])
-                    print(artist_str.lower().capitalize())
+                    # print(artist_str.lower().capitalize())
                     lyrics = api.search_song(title.lower(),artist_str.lower().capitalize())
                     lyrics = song.lyrics
                     #print(lyrics)
                     vad[k] = VAD_analyzer(lyrics)
             except:
-                print('Bye.')
+                # print('Bye.')
                 badsongs.append(k)
         return vad
 
 
+    print("getting basic emotion labels from lyrics...", end = "")
     basic = get_basic(dictionary)
+    print("...done")
+
+    print("getting dimensional emotion values from lyrics...", end = "")
     vad = get_VAD(dictionary)
+    print("...done")
     return basic, vad
 
