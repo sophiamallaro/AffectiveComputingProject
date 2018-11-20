@@ -42,7 +42,7 @@ def positional_encoding(batch_size, n_pos, d_pos):
     position_enc = np.tile(position_enc, [batch_size, 1, 1])
     return position_enc
 
-def get_rec(user_emo ,songs_emo=songs_emo):
+def get_rec(user_emo ,songs_emo):
     high = max(user_emo)
     normal = [0 if i!=high else 1 for i in user_emo]
     normal = np.array(normal)
@@ -54,7 +54,7 @@ def get_rec(user_emo ,songs_emo=songs_emo):
             song_ids.append(k)
     return song_ids
 
-def emotion_analyzer(text,emotion_dict=emotion_dict):
+def emotion_analyzer(text,emotion_dict):
     #Set up the result dictionary
     emotions = {x for y in emotion_dict.values() for x in y}
     emotion_count = dict()
