@@ -56,15 +56,8 @@ def addTrackToPlaylist(sp, playlist_id, songs):
     sp.user_playlist_add_tracks('al321rltkr20p7oftb0i801lk', playlist_id, song_ids)
 
 
-def pickSongs(target, songs):
-    my_songs = list()
-    for key in songs:
-        if songs[key] == target:
-            my_songs.add(key)
-    return my_songs
-
-
-def make_playlist(sp, name, songs):
+def make_playlist(name, songs):
+    sp = generate_token()
     playlists = sp.user_playlist_create(USERNAME, name, public=False)
     playlistID = playlists['id']
     addTrackToPlaylist(sp, playlistID, songs)
