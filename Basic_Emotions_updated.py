@@ -84,7 +84,7 @@ for k,track in names.items():
         if lyrics == "" and len(artists) >= 2:
             artist_str = ' & '. join(str(x) for x in artists[:2])
             print(artist_str)
-            lyrics = PyLyrics.getLyrics(artist_reformat.lower(),title.lower())
+            lyrics = PyLyrics.getLyrics(artist_str.lower(),title.lower())
             lyrics = song.lyrics
             print(lyrics)
             emovector = lib.emotion_analyzer(lyrics, emotion_dict)
