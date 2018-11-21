@@ -69,3 +69,26 @@ def get_dictionary():
     get_user_tracks(sp)
     return user_tracks
 
+def get_starting_data(title1, artist1, title2, artist2, title3, artist3):
+    sp = generate_token()
+    user_requests = {}
+    user_requests = add_track(sp, user_requests, artist1, title1)
+    user_requests = add_track(sp, user_requests, artist2, title2)
+    user_requests = add_track(sp, user_requests, artist3, title3)
+    print(user_requests)
+
+
+def add_track(sp, user_requests, artistName, trackName):
+    searchVal = "artist:" + artistName + " track:" + trackName
+    results = sp.search(q=searchVal, type="track")
+    try:
+        song = results['tracks']['items'][0]
+        saveAs = "userdata/" + song['id'] + ".mp3"
+        user_requests[song['id']] = song['name']#, song['artists']
+        if song['preview_url'] is not None:
+            urllib.request.urlretrieve(song['preview_url'], saveAs)
+    except:
+        pass
+    return user_requests
+
+
