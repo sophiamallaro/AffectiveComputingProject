@@ -1,0 +1,71 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+  <style>
+  body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+  </style>  
+
+<body>
+
+<!-- Header -->
+<header class="w3-container w3-indigo w3-center" style="padding:128px 16px">
+  <h1 class="w3-margin w3-jumbo">DETERMINING AFFECT SURVEY</h1>
+  <p class="w3-xlarge"> Give the title and artist of three songs that currently match your mood. </p>
+</header>
+    <div class="container w3-center">
+  <div class="row">
+    <div class="col-xs-12">
+      <form method = "POST" action = "/get">
+      <h4 style = "color : red">
+      {% if message %}
+        <p>{{ message }}</p>
+      {% endif %}
+      </h4>
+  <div class="form-group row">
+    <label for="inputArtist" class="col-sm-2 col-form-label">Artist</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "artist1" id="artist1" placeholder="Artist">
+    </div>
+  <div class="form-group row">
+    <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "title1" id="title1" placeholder="Title">
+    </div>
+  </div>
+  
+  <hr/>
+  <div class="form-group row">
+    <label for="inputArtist" class="col-sm-2 col-form-label">Artist</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "artist2" id="artist2" placeholder="Artist">
+    </div>
+  <div class="form-group row">
+    <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "title2" id="title2" placeholder="Title">
+    </div>
+  </div>
+  
+  <hr/>
+  <div class="form-group row">
+    <label for="inputArtist" class="col-sm-2 col-form-label">Artist</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "artist3" id="artist3" placeholder="Artist">
+    </div>
+  <div class="form-group row">
+    <label for="inputTitle" class="col-sm-2 col-form-label">Title</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" name = "title3" id="title3" placeholder="Title">
+    </div>
+  </div>
+  
+  <hr/>
+
+
+<input type="submit" value = "Submit!">
+</form>
+
+</body>
+
+</html>
