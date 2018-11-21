@@ -1,0 +1,298 @@
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+  <style>
+  body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
+  </style>  
+
+<body>
+
+<!-- Header -->
+<header class="w3-container w3-indigo w3-center" style="padding:128px 16px">
+  <h1 class="w3-margin w3-jumbo">DETERMINING AFFECT SURVEY</h1>
+  <p class="w3-xlarge">This survey allows us to determine your valence-arousal score and your most dominant basic emotions. Based on how you feel, you will get a playlist of songs that corresponds to your emotions. </p>
+</header>
+    <div class="container w3-center">
+  <div class="row">
+    <div class="col-xs-12">
+      <form method = "POST" action = "/get">
+      <h4 style = "color : red">
+      {% if message %}
+        <p>{{ message }}</p>
+      {% endif %}
+      </h4>
+
+    <h6> <p class="page-header"> 1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p> </h6>
+    
+    <label class="radio-inline">
+      <input type="radio" value = "1" name="q1">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q1">  2   
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q1">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q1">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q1">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q1">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q1">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q1">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q1">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q1">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q2">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q2">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q2">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q2">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q2">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q2">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q2">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q2">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q2">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q2">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q3">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q3">  2
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q3">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q3">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q3">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q3">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q3">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q3">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q3">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q3">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q4">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q4">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q4">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q4">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q4">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q4">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q4">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q4">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q4">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q4">  10  
+      </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q5">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q5">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q5">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q5">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q5">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q5">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q5">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q5">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q5">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q5">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q6">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q6">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q6">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q6">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q6">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q6">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q6">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q6">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q6">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q6">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q7">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q7">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q7">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q7">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q7">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q7">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q7">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q7">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q7">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q7">  10  
+    </label>
+    <hr/>
+    <p class="page-header">1 is good, 10 is bad (i.e., "How much pain are you in right now?")</p>
+    
+    <label class="radio-inline">
+      <input type="radio" value = 1 name="q8">  1  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 2 name="q8">  2  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 3 name="q8">  3  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 4 name="q8">  4  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 5 name="q8">  5  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 6 name="q8">  6  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 7 name="q8">  7  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 8 name="q8">  8  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 9 name="q8">  9  
+    </label>
+    <label class="radio-inline">
+      <input type="radio" value = 10 name="q8">  10  
+    </label>
+    <hr/>
+
+    </div>
+  </div>
+<input type="submit" value = "Submit!">
+</form>
+
+</body>
+
+</html>
