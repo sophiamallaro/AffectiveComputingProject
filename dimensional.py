@@ -51,7 +51,10 @@ def get_dimensional_emotion(tracks_dictionary, songs_folder = "data/", temp_fold
         if i == limit - 1:
             break
 
-    columns = list(pd.read_csv(feature_file_path, delimiter = ";", index_col = 0, header = 0).columns)
+    if len(song_ids) == 0:
+        return dict()
+
+    columns = list(pd.read_csv("temp/temp_features_template.csv", delimiter = ";", index_col = 0, header = 0).columns)
     columns = [column for column in columns if column.endswith("_amean")]
     mean_columns = [column[:-6] + "_mean" for column in columns]
     std_columns = [column[:-6] + "_std" for column in columns]

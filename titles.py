@@ -5,7 +5,6 @@ import indicoio
 import pandas as pd
 import spotipy
 import urllib
-import getUserSongs
 from spotipy.oauth2 import SpotifyClientCredentials
 
 def get_text_scores(dictionary):

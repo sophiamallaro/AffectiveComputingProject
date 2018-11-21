@@ -7,9 +7,9 @@ import urllib
 from spotipy.oauth2 import SpotifyClientCredentials
 import numpy as np
 import torch
-# import lib
+import lib
 from ConvNet import ConvNet
-from getUserSongs import *
+# from getUserSongs import *
 import lyricsgenius as genius
 
 def get_emotions_audio(mp3folder, model):
@@ -63,7 +63,7 @@ def get_song_emotions():
                 lyrics = song.lyrics
             emovector = lib.emotion_analyzer(lyrics, emotion_dict)
             high = max(emovector)
-        
+
             text_emotions = [0 if i!=high else 1 for i in emovector]
             text_emotions = np.array(text_emotions)
         except:
