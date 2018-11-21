@@ -1,5 +1,5 @@
 import os
-import dummy
+import getUserSongs
 from flask import Flask, request, render_template, g, redirect, Response
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -13,7 +13,7 @@ def index():
 @app.route('/start', methods = ['POST'])
 def start():
   if request.method == 'POST':
-    return render_template("survey.html")
+    return render_template("new.html")
 
 @app.route('/submit', methods = ['POST'])
 def submit():
@@ -25,6 +25,14 @@ def survey():
   answers = {}
   if request.method =='POST':
     try:
+      title1 = request.form['title1']
+      artist1 = request.form['artist1']
+      title2 = request.form['title2']
+      artist2 = request.form['artist2']
+      title3 = request.form['title3']
+      artist3 = request.form['artist3']
+
+      """
       answers['q1'] = request.form['q1']
       answers['q2'] = request.form['q2']
       answers['q3'] = request.form['q3']
@@ -33,7 +41,8 @@ def survey():
       answers['q6'] = request.form['q6']
       answers['q7'] = request.form['q7']
       answers['q8'] = request.form['q8']
-      dummy.read(list(answers.values()))
+      """
+      getUserSongs.run_backend(title1, artist1, title2, artist2, title3, artist3)
       return render_template("thanks.html")
     except:
         return render_template("survey.html", message = "Oops, you forgot to fill in all of the questions!")
