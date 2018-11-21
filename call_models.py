@@ -79,12 +79,12 @@ def get_basic_combine(dictionary):
 if __name__ == "__main__":
     songs_dictionary = json.load(open("dictionary.json"))
     new_songs_dictionary = dict([(k,v) for k, v in list(songs_dictionary.items())[:2]])
-    basic_text_scores, va_text_scores = get_text_scores(new_songs_dictionary)
+    basic_text_scores, va_text_scores = get_text_scores(songs_dictionary)
     
     # dimensional_dictionary = get_va_scores(new_songs_dictionary, va_text_scores)
     # generate_playlist_va(dimensional_dictionary, .5, .5)
     
-    basic_combine_score = get_basic_combine(new_songs_dictionary)
+    basic_combine_score = get_basic_combine(songs_dictionary)
     print(basic_combine_score)
         
 
