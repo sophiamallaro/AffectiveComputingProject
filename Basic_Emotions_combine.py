@@ -63,7 +63,7 @@ def get_song_emotions():
                 lyrics = song.lyrics
             emovector = lib.emotion_analyzer(lyrics, emotion_dict)
             high = max(emovector)
-
+        
             text_emotions = [0 if i!=high else 1 for i in emovector]
             text_emotions = np.array(text_emotions)
         except:

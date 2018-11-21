@@ -63,17 +63,25 @@ def get_emotions_audio(mp3folder, model):
     return songs_emo
 
 
+
 if __name__ == "__main__":
     songs_dictionary = json.load(open("dictionary.json"))
     new_songs_dictionary = dict([(k,v) for k, v in list(songs_dictionary.items())[:2]])
     basic_text_scores, va_text_scores = get_text_scores(new_songs_dictionary)
     
-    dimensional_dictionary = get_va_scores(new_songs_dictionary, va_text_scores)
-    generate_playlist_va(dimensional_dictionary, .5, .5)
+    # dimensional_dictionary = get_va_scores(new_songs_dictionary, va_text_scores)
+    # generate_playlist_va(dimensional_dictionary, .5, .5)
 
-    # PATH = 'model/model.pth'
-    # model = ConvNet(6)
-    # model.load_state_dict(torch.load(PATH))
-    # model.eval()
-    # dic = get_emotions_audio('data', model)
-    # print(dic)
+    #PATH = 'model/model.pth'
+    #model = ConvNet(6)
+    #model.load_state_dict(torch.load(PATH))
+    #model.eval()
+    #dic = get_emotions_audio('data', model)
+    for k, v in basic_text_scores.items():
+        score = np.add(v,dic[k])
+        
+        np.clip(score,0,1,out=score)
+        
+
+
+    
