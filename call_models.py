@@ -41,7 +41,7 @@ def generate_playlist_be(user_basic_emotion):
     song_list = get_recomendations(user_basic_emotion)
     make_playlist("Basic Emotions Playlist", song_list)
 
-def get_emotions_audio(mp3folder, model, dictionary):
+def get_basic_audio(mp3folder, model, dictionary):
     #mp3file = "data/" + k + ".mp3"
     #ID = get_dictionary()
     #print (ID)
@@ -65,14 +65,15 @@ def get_basic_combine(dictionary):
     model = ConvNet(6)
     model.load_state_dict(torch.load(PATH))
     model.eval()
-    basic_audio_scores = get_emotions_audio('data', model, dictionary)
+    basic_audio_scores = get_basic_audio('data', model, dictionary)
     basic_combine_score = {}
     for k, v in basic_text_scores.items():
         score = np.add(v,basic_audio_scores[k])
         high = max(score)
-        score = [0 if i!=high else 1 for i in score]
-        np.clip(score,0,1,out=score)
-        basic_combine_score[k] = score
+        max_output = [0 if i!=high else 1 for i in score]
+        max_output = np.array(max_output)
+        np.clip(max_output,0,1,out=max_output)
+        basic_combine_score[k] = max_output
     return basic_combine_score
 
 if __name__ == "__main__":
