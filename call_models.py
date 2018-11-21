@@ -41,12 +41,12 @@ def generate_playlist_be(user_basic_emotion):
     song_list = get_recomendations(user_basic_emotion)
     make_playlist("Basic Emotions Playlist", song_list)
 
-def get_emotions_audio(mp3folder, model):
+def get_emotions_audio(mp3folder, model, dictionary):
     #mp3file = "data/" + k + ".mp3"
-    ID = get_dictionary()
+    #ID = get_dictionary()
     #print (ID)
     songs_emo = {}
-    for k, v in ID.items():
+    for k, v in dictionary.items():
         mp3file = mp3folder +"/" + k + '.mp3'
         spec = lib.audio_read(mp3file)# extract spectrogram 
         spec = np.expand_dims(spec, axis=0)
@@ -55,14 +55,25 @@ def get_emotions_audio(mp3folder, model):
         pred = model(spec)
         pred = pred.data.numpy()
         pred = pred[0]
-        high = max(pred)
-        pred = [0 if i!=high else 1 for i in pred]
         pred = np.array(pred)
         songs_emo[k] = pred
         print(k)
     return songs_emo
-
-
+def get_basic_combine(dictionary):
+    
+    PATH = 'model/model.pth'
+    model = ConvNet(6)
+    model.load_state_dict(torch.load(PATH))
+    model.eval()
+    basic_audio_scores = get_emotions_audio('data', model, dictionary)
+    basic_combine_score = {}
+    for k, v in basic_text_scores.items():
+        score = np.add(v,basic_audio_scores[k])
+        high = max(score)
+        score = [0 if i!=high else 1 for i in score]
+        np.clip(score,0,1,out=score)
+        basic_combine_score[k] = score
+    return basic_combine_score
 
 if __name__ == "__main__":
     songs_dictionary = json.load(open("dictionary.json"))
@@ -71,16 +82,9 @@ if __name__ == "__main__":
     
     # dimensional_dictionary = get_va_scores(new_songs_dictionary, va_text_scores)
     # generate_playlist_va(dimensional_dictionary, .5, .5)
-
-    #PATH = 'model/model.pth'
-    #model = ConvNet(6)
-    #model.load_state_dict(torch.load(PATH))
-    #model.eval()
-    #dic = get_emotions_audio('data', model)
-    for k, v in basic_text_scores.items():
-        score = np.add(v,dic[k])
-        
-        np.clip(score,0,1,out=score)
+    
+    basic_combine_score = get_basic_combine(new_songs_dictionary)
+    print(basic_combine_score)
         
 
 
